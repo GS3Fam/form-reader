@@ -1,0 +1,25 @@
+{
+  "name": "form-reader",
+  "version": "1.0.0",
+  "description": "Instruction:",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GS3Fam/form-reader.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GS3Fam/form-reader/issues"
+  },
+  "homepage": "https://github.com/GS3Fam/form-reader#readme",
+  "dependencies": {
+    "electron": "^3.0.10",
+    "jquery": "^3.3.1",
+    "moment": "^2.22.2",
+    "mongoose": "^5.3.15"
+  }
+}
