@@ -89,7 +89,8 @@
 
             // set options
             arr.forEach((val)=>{
-              options += `<option value=${val}>${val}</option>`
+              val = val.trim()
+              options += `<option value="${val}">${val}</option>`
             })
 
             input = `<select name="${data[0]}" class="blk form-control data-field" ${type}>${options}</select>`
@@ -101,9 +102,10 @@
 
             // set options
             arr.forEach((val)=>{
+              val = val.trim()
               options += `
                 <div class="form-check">
-                  <input class="form-check-input data-field" type="checkbox" id="check-${val}" name="${data[0]}" ${type}>
+                  <input class="form-check-input data-field" type="checkbox" id="check-${val}" name="${data[0]}" value="${val}" ${type}>
                   <label class="form-check-label" for="check-${val}">${val}</label>
                 </div>`
             })
@@ -137,16 +139,35 @@
         e.preventDefault();
 
         let doc = { appId : $(`form`).attr('appId') }
-        $(`form .data-field`).each(function(){
+        $(`form .data-field:not([type=checkbox])`).each(function(){
           doc[$(this).attr('name')] = $(this).val()
+        })
+        $(`form .data-field[type=checkbox]:checked`).each(function(){
+          if(doc[$(this).attr('name')]){
+            doc[$(this).attr('name')].push($(this).val())
+          }
+          else{
+            doc[$(this).attr('name')] = [$(this).val()]
+          }
+
         })
         ipcRenderer.send('form:post', doc)
 
       })
 
       ipcRenderer.on('form:post', (e)=>{
-        $(`body`).scrollTop = 0;
-        $(`form .data-field`).val('');
+        $(`html, body`).scrollTop(0);
+
+        $(`form input.data-field[type=text], form input.data-field[type=number]`).val('');
+        $(`form input.data-field[type=checkbox]`).prop('checked', false);
+
+        $(`form textarea.data-field`).text('');
+
+        $(`form select.data-field`).each(function(){
+          $(this).children('option').removeAttr('selected')
+          $(this).children('option:first-child').attr('selected','selected')
+        })
+
         $(`form button[type=submit]`).removeAttr('disabled')
       });
 
