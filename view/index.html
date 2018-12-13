@@ -35,15 +35,17 @@
       const {ipcRenderer} = electron
       let input, type;
 
+      // Interval get files
       function getFiles(){
-        ipcRenderer.send('json:getAll')
+        ipcRenderer.send('form:getAll')
       }
-
       getFiles()
       setInterval(getFiles, 3000);
-      ipcRenderer.send('json:getInitial')
 
-      ipcRenderer.on('json:getAll', (e, files)=>{
+      // Request Get Initial
+      ipcRenderer.send('form:getInitial')
+
+      ipcRenderer.on('form:getAll', (e, files)=>{
         $(`#sidebar .file-list`).html(``)
         files.forEach((data)=>{
           $(`#sidebar .file-list`).append(`
@@ -53,19 +55,19 @@
           $(`#sidebar .file-list p[appId=${$(`form`).attr(`appId`)}]`).addClass('selected') : 0
 
         $(`#sidebar .file-list p`).on('click', function(){
-          ipcRenderer.send('json:getOne',$(this).attr(`filename`))
+          ipcRenderer.send('form:getOne',$(this).attr(`filename`))
           $(`#sidebar .file-list p`).removeClass('selected')
           $(this).addClass('selected')
         });
 
       });
 
-      ipcRenderer.on('json:empty', (e)=>{
+      ipcRenderer.on('form:empty', (e)=>{
         $(`form`).html(`
           <p id='form-catch'>File directory is empty</p>`)
       });
 
-      ipcRenderer.on('json:getOne', (e, json)=>{
+      ipcRenderer.on('form:getOne', (e, json)=>{
         $(`form`).html('')
 
         // caption
@@ -90,7 +92,7 @@
               options += `<option value=${val}>${val}</option>`
             })
 
-            input = `<select name=${data[1]} class="blk form-control" ${type}>${options}</select>`
+            input = `<select name="${data[0]}" class="blk form-control data-field" ${type}>${options}</select>`
           }
           else if(data[1].toLowerCase().match('checkbox')){
             // get options from string
@@ -101,7 +103,7 @@
             arr.forEach((val)=>{
               options += `
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="check-${val}" ${type}>
+                  <input class="form-check-input data-field" type="checkbox" id="check-${val}" name="${data[0]}" ${type}>
                   <label class="form-check-label" for="check-${val}">${val}</label>
                 </div>`
             })
@@ -109,10 +111,11 @@
             input = options
           }
           else if(data[1] == 'Text Area'){
-            input = `<textarea class="mb-2 form-control" rows="4" name=${data[1]} ${type}/>`
+            input = `<textarea class="mb-2 form-control data-field" rows="4" name="${data[0]}" ${type}/>`
           }
           else{
-            input = `<input class="mb-2 form-control" type=${data[1]} name=${data[1]} ${type}>`
+            data[1] == 'Text' || data[1] == 'Number' ? 0 : data[1] = 'text'
+            input = `<input class="mb-2 form-control data-field" type="${data[1]}" name="${data[0]}" ${type}>`
           }
 
           data[4] ?
@@ -121,11 +124,30 @@
 
         })
 
+        // submit button
         $(`form`).append(`
           <div class="align-right-imp mb-2">
             <button class="btn btn-sm btn-custom-primary" type="submit">Submit</button>
           </div>`);
 
+      });
+
+      $(`form`).on('submit', function(e){
+        $(`form button[type=submit]`).attr('disabled','disabled')
+        e.preventDefault();
+
+        let doc = { appId : $(`form`).attr('appId') }
+        $(`form .data-field`).each(function(){
+          doc[$(this).attr('name')] = $(this).val()
+        })
+        ipcRenderer.send('form:post', doc)
+
+      })
+
+      ipcRenderer.on('form:post', (e)=>{
+        $(`body`).scrollTop = 0;
+        $(`form .data-field`).val('');
+        $(`form button[type=submit]`).removeAttr('disabled')
       });
 
     });
