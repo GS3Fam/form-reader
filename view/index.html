@@ -116,7 +116,7 @@
             input = `<textarea class="mb-2 form-control data-field" rows="4" name="${data[0]}" ${type}/>`
           }
           else{
-            data[1] == 'Text' || data[1] == 'Number' ? 0 : data[1] = 'text'
+            data[1] == 'Text' || data[1] == 'Number' || data[1] == 'Date' || data[1] == 'Time' ? 0 : data[1] = 'text'
             input = `<input class="mb-2 form-control data-field" type="${data[1]}" name="${data[0]}" ${type}>`
           }
 
@@ -149,7 +149,6 @@
           else{
             doc[$(this).attr('name')] = [$(this).val()]
           }
-
         })
         ipcRenderer.send('form:post', doc)
 
@@ -158,10 +157,10 @@
       ipcRenderer.on('form:post', (e)=>{
         $(`html, body`).scrollTop(0);
 
-        $(`form input.data-field[type=text], form input.data-field[type=number]`).val('');
+        $(`form input.data-field:not([type=checkbox]):not([type=radio])`).val('');
         $(`form input.data-field[type=checkbox]`).prop('checked', false);
 
-        $(`form textarea.data-field`).text('');
+        $(`form textarea.data-field`).val('');
 
         $(`form select.data-field`).each(function(){
           $(this).children('option').removeAttr('selected')

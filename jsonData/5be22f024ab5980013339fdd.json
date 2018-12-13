@@ -340,6 +340,65 @@
         "Under Service"
       ],
       "id": "57745860"
+    },
+    {
+      "Age In Days Until Closed": "",
+      "Caller ID": "",
+      "Date Reported": "2018-12-13",
+      "Equipment Concern": "",
+      "Name of Caller": "",
+      "Narratives": "",
+      "OpenTicketDetails": "",
+      "Original Ticket ID": "",
+      "Partner ID Assigned": "",
+      "Previous Partner ID Assigned": "",
+      "Priority": "High",
+      "Service Concern": "",
+      "Status": "Open",
+      "Ticket ID": "",
+      "id": "62087928"
+    },
+    {
+      "Age In Days Until Closed": "",
+      "Caller ID": "",
+      "Date Reported": "2018-12-13",
+      "Equipment Concern": "s",
+      "Name of Caller": "s",
+      "Narratives": "s",
+      "OpenTicketDetails": "",
+      "Original Ticket ID": "s",
+      "Partner ID Assigned": "s",
+      "Previous Partner ID Assigned": "",
+      "Priority": "High",
+      "Service Concern": "s",
+      "Status": "Re Assigned",
+      "Ticket ID": "s",
+      "Warranty Coverage": [
+        "Under Equipment",
+        "Under Service"
+      ],
+      "id": "46137705"
+    },
+    {
+      "Age In Days Until Closed": "",
+      "Caller ID": "",
+      "Date Reported": "2018-12-08",
+      "Equipment Concern": "d",
+      "Name of Caller": "d",
+      "Narratives": "ddd",
+      "OpenTicketDetails": "",
+      "Original Ticket ID": "v",
+      "Partner ID Assigned": "d",
+      "Previous Partner ID Assigned": "",
+      "Priority": "Medium",
+      "Service Concern": "d",
+      "Status": "Ongoing",
+      "Ticket ID": "d",
+      "Warranty Coverage": [
+        "Under Equipment",
+        "Under Service"
+      ],
+      "id": "54868342"
     }
   ]
 }
