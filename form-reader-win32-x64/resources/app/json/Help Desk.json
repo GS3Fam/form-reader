@@ -1,0 +1,91 @@
+{"appId": "5be22f024ab5980013339fdd",
+    "_app": {
+        "appId": "5be22f024ab5980013339fdd",
+        "caption": "Help Desk",
+        "image": "/img/HowTo.jpg",
+        "sequence": "14",
+        "status": true,
+        "access": "Helpdesk_met001@gmail.com;Account_met001@gmail.com;metro@metro.com",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "Ticket ID",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Name of Caller",
+            "typeahead-option-5be04672769adb001326e13b;_Customer_Name;_Email,_Primary_Phone,_Address",
+            "Editable"
+        ],
+        [
+            "Caller ID",
+            "Text",
+            "Computed"
+        ],
+        [
+            "Equipment Concern",
+            "typeahead-option-5be272078c3bf00013673538;_Subject;_Description",
+            "Editable"
+        ],
+        [
+            "Service Concern",
+            "typeahead-option-5be275f45fc40f0013fa2644;_Subject;_Description",
+            "Editable"
+        ],
+        [
+            "Narratives",
+            "Text Area",
+            "Editable"
+        ],
+        [
+            "Warranty Coverage",
+            "checkbox-option-Under Equipment; Under Service",
+            "Editable"
+        ],
+        [
+            "Priority",
+            "selection-option-High; Medium; Low; Escalated",
+            "Editable"
+        ],
+        [
+            "Date Reported",
+            "Date",
+            "Editable"
+        ],
+        [
+            "Original Ticket ID",
+            "typeahead-option-5be22f024ab5980013339fdd;_Original_Ticket_ID",
+            "Editable"
+        ],
+        [
+            "Status",
+            "selection-option-Open; Ongoing; Re Assigned; Closed",
+            "Editable"
+        ],
+        [
+            "Partner ID Assigned",
+            "typeahead-option-5be23c190fde630013ae04b4;_Partner_Unique_Code;_Partner_Official_Name,_Area_of_Coverage,_Status,_Average_Customer_Feedback",
+            "Editable"
+        ],
+        [
+            "Previous Partner ID Assigned",
+            "Text",
+            "Computed"
+        ],
+        [
+            "Age In Days Until Closed",
+            "Number",
+            "Computed"
+        ],
+        [
+            "OpenTicketDetails",
+            "Number",
+            "Computed"
+        ]
+    ],
+    "__v": 0}

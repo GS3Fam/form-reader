@@ -1,0 +1,84 @@
+{
+  "appId": "5c09f30cc56f0f00155a94a2",
+    "_app": {
+        "appId": "5c09f30cc56f0f00155a94a2",
+        "caption": "sample",
+        "image": "/img/add-documents.svg",
+        "sequence": "5",
+        "status": true,
+        "access": "",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "ID",
+            "Text",
+            "Computed",
+            null,
+            {
+                "column": "1/3",
+                "row": "1/2",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Name",
+            "Text",
+            "Editable",
+            null,
+            {
+                "column": "3/5",
+                "row": "1/2",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Age",
+            "Number",
+            "Editable",
+            null,
+            {
+                "column": "5/7",
+                "row": "1/2",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Birth Date",
+            "Date",
+            "Editable",
+            null,
+            {
+                "column": "7/9",
+                "row": "1/2",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Remarks",
+            "Text Area",
+            "Editable",
+            null,
+            {
+                "column": "9/11",
+                "row": "1/2",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Marital Status",
+            "selection-option-Single,Married,Divorced",
+            "Editable",
+            null,
+            {
+                "column": "11/13",
+                "row": "1/2",
+                "orientation": "horizontal"
+            }
+        ]
+    ],
+    "__v": 0
+}

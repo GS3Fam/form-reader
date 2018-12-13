@@ -1,0 +1,37 @@
+{
+  "appId": "appIdSample123",
+  "app": {
+    "appId": "appIdSample123",
+    "caption": "appSample123",
+    "sequence": 1,
+    "image": "/img/imageSample.svg",
+    "status": true
+  },
+  "columns": [
+    [
+      "ID",
+      "Text",
+      "Computed"
+    ],
+    [
+      "Name",
+      "Text",
+      "Editable"
+    ],
+    [
+      "Age",
+      "Number",
+      "Editable"
+    ],
+    [
+      "Remarks",
+      "Text Area",
+      "Editable"
+    ],
+    [
+      "Marital Status",
+      "selection-option-Single,Married,Divorced",
+      "Editable"
+    ]
+  ]
+}

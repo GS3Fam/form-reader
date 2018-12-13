@@ -1,0 +1,66 @@
+{"appId": "5be04672769adb001326e13b",
+"_app": {
+    "appId": "5be04672769adb001326e13b",
+    "caption": "Customers",
+    "image": "/img/Life/delegate.svg",
+    "sequence": "1",
+    "status": true,
+    "access": "Helpdesk_met001@gmail.com;Account_met001@gmail.com;metro@metro.com",
+    "customhtml": "",
+    "mobileCheck": false,
+    "mobileKeyRef1": "",
+    "mobileKeyRef2": ""
+},
+"columns": [
+    [
+        "Customer Name",
+        "Text",
+        "Editable"
+    ],
+    [
+        "Email",
+        "Text",
+        "Editable"
+    ],
+    [
+        "Primary Phone",
+        "Text",
+        "Editable"
+    ],
+    [
+        "Address",
+        "Text Area",
+        "Editable"
+    ],
+    [
+        "Other Contact Information",
+        "Text",
+        "Editable"
+    ],
+    [
+        "Last Call Ticket ID",
+        "Text",
+        "Computed"
+    ],
+    [
+        "Number of Escalations",
+        "Number",
+        "Editable"
+    ],
+    [
+        "Total Number of Calls",
+        "Number",
+        "Editable"
+    ],
+    [
+        "Customer ID",
+        "Text",
+        "Editable"
+    ],
+    [
+        "Customer Code",
+        "Text",
+        "Editable"
+    ]
+],
+"__v": 0}

@@ -1,0 +1,51 @@
+{"appId": "5bb4c4cf2429aa001329b3ce",
+    "_app": {
+        "appId": "5bb4c4cf2429aa001329b3ce",
+        "caption": "Inventory",
+        "image": "/img/md-list-box.svg",
+        "sequence": "11",
+        "status": true,
+        "access": "metro@metro.com",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "Company Code",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Item Name",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Warehouse",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Quantity",
+            "Number",
+            "Editable"
+        ],
+        [
+            "UOM",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Reorder Point",
+            "Number",
+            "Editable"
+        ],
+        [
+            "Remarks",
+            "Text Area",
+            "Editable"
+        ]
+    ],
+    "__v": 0}

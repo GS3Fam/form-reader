@@ -1,0 +1,31 @@
+{"appId": "5be275f45fc40f0013fa2644",
+    "_app": {
+        "appId": "5be275f45fc40f0013fa2644",
+        "caption": "Service Concerns",
+        "image": "/img/ios-eye.svg",
+        "sequence": "17",
+        "status": true,
+        "access": "metro@metro.com",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "Subject",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Description",
+            "typeahead-option-5be275f45fc40f0013fa2644;_Description",
+            "Editable"
+        ],
+        [
+            "Concern ID",
+            "Text",
+            "Computed"
+        ]
+    ],
+    "__v": 0}

@@ -1,0 +1,51 @@
+{"appId": "5be2419d0fde630013ae04be",
+    "_app": {
+        "appId": "5be2419d0fde630013ae04be",
+        "caption": "Areas of Coverage",
+        "image": "/img/ios-radio.svg",
+        "sequence": "16",
+        "status": true,
+        "access": "metro@metro.com",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "Service Area Code",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Country",
+            "typeahead-option-5be2419d0fde630013ae04be;_Country",
+            "Editable"
+        ],
+        [
+            "Region",
+            "typeahead-option-5be2419d0fde630013ae04be;_Region",
+            "Editable"
+        ],
+        [
+            "Province",
+            "typeahead-option-5be2419d0fde630013ae04be;_Province",
+            "Editable"
+        ],
+        [
+            "City",
+            "typeahead-option-5be2419d0fde630013ae04be;_City",
+            "Editable"
+        ],
+        [
+            "ZIP Code",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Street Name",
+            "Text",
+            "Editable"
+        ]
+    ],
+    "__v": 0}

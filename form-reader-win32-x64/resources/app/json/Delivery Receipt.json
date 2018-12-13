@@ -1,0 +1,141 @@
+{"appId": "5bb32b0ff05e4200133ccff1",
+    "_app": {
+        "appId": "5bb32b0ff05e4200133ccff1",
+        "caption": "Delivery Receipt",
+        "image": "/img/ios-apps.svg",
+        "sequence": "6",
+        "status": true,
+        "access": "metro@metro.com",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "Reference No",
+            "Text",
+            "Editable"
+        ],
+        [
+            "CO No",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Pickup Ref No",
+            "Text",
+            "Computed"
+        ],
+        [
+            "Staging ID",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Customer",
+            "typeahead-option-5b95ca93f42537001483d2e3;_Customer",
+            "Editable"
+        ],
+        [
+            "Pickup Address",
+            "typeahead-option-5b95ca93f42537001483d2e3;_Pickup_Address",
+            "Editable"
+        ],
+        [
+            "Delivery Address",
+            "typeahead-option-5b95ca93f42537001483d2e3;_Delivery_Address",
+            "Editable"
+        ],
+        [
+            "Remarks",
+            "Text Area",
+            "Editable"
+        ],
+        [
+            "Item",
+            "typeahead-option-5b95ca93f42537001483d2e3;_Item",
+            "Editable"
+        ],
+        [
+            "Quantity To Deliver",
+            "Number",
+            "Editable"
+        ],
+        [
+            "Quantity Loaded",
+            "Number",
+            "Editable"
+        ],
+        [
+            "Quantity in CDR",
+            "Number",
+            "Computed"
+        ],
+        [
+            "Amount Collected in CDR",
+            "Number",
+            "Computed"
+        ],
+        [
+            "Amount Remitted from CDR",
+            "Number",
+            "Computed"
+        ],
+        [
+            "UOM",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Vehicle ID",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Cargo No",
+            "Text",
+            "Editable"
+        ],
+        [
+            "POD Picture",
+            "Image Upload",
+            "Editable"
+        ],
+        [
+            "POD Signature",
+            "Signature Pad",
+            "Editable"
+        ],
+        [
+            "DR Details",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Payment Due",
+            "Number",
+            "Editable"
+        ],
+        [
+            "Payment Due Date",
+            "Date",
+            "Editable"
+        ],
+        [
+            "Check Payment Details",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Payment Record No",
+            "Text",
+            "Computed"
+        ],
+        [
+            "Status",
+            "Text",
+            "Editable"
+        ]
+    ],
+    "__v": 0}

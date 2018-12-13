@@ -1,0 +1,91 @@
+{"appId": "5b95cf0213eb1400144ec061",
+    "_app": {
+        "appId": "5b95cf0213eb1400144ec061",
+        "caption": "Stock Movement",
+        "image": "/img/md-fastforward.svg",
+        "sequence": "8",
+        "status": true,
+        "access": "metro@metro.com",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "Reference No",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Reference_No",
+            "Editable"
+        ],
+        [
+            "Src Warehouse ID",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Src_Warehouse_ID",
+            "Editable"
+        ],
+        [
+            "Src Staging ID",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Src_Staging_ID",
+            "Editable"
+        ],
+        [
+            "Src Assembly ID",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Src_Assembly_ID",
+            "Editable"
+        ],
+        [
+            "Src Bin ID",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Src_Bin_ID",
+            "Editable"
+        ],
+        [
+            "Dst Warehouse ID",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Dst_Warehouse_ID",
+            "Editable"
+        ],
+        [
+            "Dst Staging ID",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Dst_Staging_ID",
+            "Editable"
+        ],
+        [
+            "Dst Assembly ID",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Dst_Assembly_ID",
+            "Editable"
+        ],
+        [
+            "Dst Bin ID",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Dst_Bin_ID",
+            "Editable"
+        ],
+        [
+            "Item",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Item",
+            "Editable"
+        ],
+        [
+            "Planned Quantity",
+            "Number",
+            "Computed"
+        ],
+        [
+            "Actual Quantity Moved",
+            "Number",
+            "Editable"
+        ],
+        [
+            "UOM",
+            "typeahead-option-5b95cf0213eb1400144ec061;_UOM",
+            "Editable"
+        ],
+        [
+            "Status",
+            "typeahead-option-5b95cf0213eb1400144ec061;_Status",
+            "Editable"
+        ],
+        [
+            "Customer",
+            "Text",
+            "Computed"
+        ]
+    ],
+    "__v": 0}

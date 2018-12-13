@@ -1,0 +1,106 @@
+{"appId": "5b95ced513eb1400144ec060",
+    "_app": {
+        "appId": "5b95ced513eb1400144ec060",
+        "caption": "Bin",
+        "image": "/img/ios-albums.svg",
+        "sequence": "12",
+        "status": true,
+        "access": "metro@metro.com",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "Customer",
+            "typeahead-option-5b95ca93f42537001483d2e3;_Customer",
+            "Editable"
+        ],
+        [
+            "Warehouse",
+            "typeahead-option-5b95ca93f42537001483d2e3;_Warehouse",
+            "Editable"
+        ],
+        [
+            "Bin ID",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Item",
+            "typeahead-option-5b95ca93f42537001483d2e3;_Item",
+            "Editable"
+        ],
+        [
+            "Quantity",
+            "Number",
+            "Editable"
+        ],
+        [
+            "UOM",
+            "typeahead-option-5b95ca93f42537001483d2e3;_UOM",
+            "Editable"
+        ],
+        [
+            "Capacity",
+            "Number",
+            "Editable"
+        ],
+        [
+            "Total Incoming",
+            "Number",
+            "Computed"
+        ],
+        [
+            "Receive",
+            "Number",
+            "Editable"
+        ],
+        [
+            "Source Bin",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Source Assembly",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Source Staging",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Total Outgoing",
+            "Number",
+            "Computed"
+        ],
+        [
+            "Take Out",
+            "Number",
+            "Editable"
+        ],
+        [
+            "Destination Bin",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Destination Assembly",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Destination Staging",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Status",
+            "typeahead-option-5b95ca93f42537001483d2e3;_Status",
+            "Editable"
+        ]
+    ],
+    "__v": 0}

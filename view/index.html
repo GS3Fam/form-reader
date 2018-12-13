@@ -4,15 +4,134 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>Form Reader</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
   <link rel="stylesheet" type='text/css' href="../css/general.css">
   <link rel="stylesheet" type='text/css' href="../css/styles.css">
 </head>
 <body>
-  <div class='container-fluid my-2'>
-    <p>Sample</p>
+
+  <div>
+    <div id="sidebar">
+      <div class="header">
+        <p class="m-0">Apps</p>
+      </div>
+      <div class="file-list"></div>
+    </div>
+    <div id="form-div">
+      <p id="title"></p>
+      <form action="" class="grid-container" appId=''>
+
+      </form>
+
+    </div>
   </div>
+
+  <script type="text/javascript">
+    window.$ = window.jQuery = require('jquery');
+    $(()=>{
+      const electron = require('electron')
+      const {ipcRenderer} = electron
+      let input, type;
+
+      function getFiles(){
+        ipcRenderer.send('json:getAll')
+      }
+
+      getFiles()
+      setInterval(getFiles, 3000);
+      ipcRenderer.send('json:getInitial')
+
+      ipcRenderer.on('json:getAll', (e, files)=>{
+        $(`#sidebar .file-list`).html(``)
+        files.forEach((data)=>{
+          $(`#sidebar .file-list`).append(`
+            <p class="m-0" filename='${data.filename}' appId='${data.appId}'>${data.caption}</p>`)
+        });
+        $(`form`).attr(`appId`) ?
+          $(`#sidebar .file-list p[appId=${$(`form`).attr(`appId`)}]`).addClass('selected') : 0
+
+        $(`#sidebar .file-list p`).on('click', function(){
+          ipcRenderer.send('json:getOne',$(this).attr(`filename`))
+          $(`#sidebar .file-list p`).removeClass('selected')
+          $(this).addClass('selected')
+        });
+
+      });
+
+      ipcRenderer.on('json:empty', (e)=>{
+        $(`form`).html(`
+          <p id='form-catch'>File directory is empty</p>`)
+      });
+
+      ipcRenderer.on('json:getOne', (e, json)=>{
+        $(`form`).html('')
+
+        // caption
+        $(`#title`).text(`${json._app.caption}`)
+        $(`#title`).css(`padding`,`5px 10px`)
+
+        // sidebar selected
+        $(`form`).attr(`appId`,json._app.appId)
+        $(`#sidebar .file-list p[appId=${$(`form`).attr(`appId`)}]`).addClass('selected')
+
+        // fields
+        json.columns.forEach((data)=>{
+          type = data[2] == 'Editable' ? '' : 'disabled'
+
+          if(data[1].toLowerCase().match('selection')){
+            // get options from string
+            let arr = data[1].split(';'), options = '';
+            arr[0] = (arr[0].split('-').pop());
+
+            // set options
+            arr.forEach((val)=>{
+              options += `<option value=${val}>${val}</option>`
+            })
+
+            input = `<select name=${data[1]} class="blk form-control" ${type}>${options}</select>`
+          }
+          else if(data[1].toLowerCase().match('checkbox')){
+            // get options from string
+            let arr = data[1].split(';'), options = '';
+            arr[0] = (arr[0].split('-').pop());
+
+            // set options
+            arr.forEach((val)=>{
+              options += `
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="check-${val}" ${type}>
+                  <label class="form-check-label" for="check-${val}">${val}</label>
+                </div>`
+            })
+
+            input = options
+          }
+          else if(data[1] == 'Text Area'){
+            input = `<textarea class="mb-2 form-control" rows="4" name=${data[1]} ${type}/>`
+          }
+          else{
+            input = `<input class="mb-2 form-control" type=${data[1]} name=${data[1]} ${type}>`
+          }
+
+          data[4] ?
+            $(`form`).append(`<div class="form-group" style="grid-column: ${data[4].column}; grid-row: ${data[4].row};"><label>${data[0]}</label>${input}</div>`) :
+            $(`form`).append(`<div class="form-group"><label>${data[0]}</label>${input}</div>`)
+
+        })
+
+        $(`form`).append(`
+          <div class="align-right-imp mb-2">
+            <button class="btn btn-sm btn-custom-primary" type="submit">Submit</button>
+          </div>`);
+
+      });
+
+    });
+
+
+  </script>
+
 </body>
 </html>

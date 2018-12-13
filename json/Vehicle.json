@@ -1,0 +1,61 @@
+{"appId": "5b95cca5f42537001483d2ed",
+    "_app": {
+        "appId": "5b95cca5f42537001483d2ed",
+        "caption": "Vehicle",
+        "image": "/img/md-car.svg",
+        "sequence": "3",
+        "status": true,
+        "access": "metro@metro.com",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "Plate No",
+            "typeahead-option-5b95cca5f42537001483d2ed;_Plate_No",
+            "Editable"
+        ],
+        [
+            "Status",
+            "typeahead-option-5b95cca5f42537001483d2ed;_Status",
+            "Editable"
+        ],
+        [
+            "Personnel 1",
+            "typeahead-option-5b95cca5f42537001483d2ed;_Personnel_1",
+            "Editable"
+        ],
+        [
+            "Personnel 2",
+            "typeahead-option-5b95cca5f42537001483d2ed;_Personnel_2",
+            "Editable"
+        ],
+        [
+            "Previous Location",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Current Location",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Destination",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Pending Transaction Count",
+            "Text",
+            "Editable"
+        ],
+        [
+            "Home Base",
+            "Text",
+            "Editable"
+        ]
+    ],
+    "__v": 0}

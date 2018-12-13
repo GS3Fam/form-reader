@@ -1,0 +1,95 @@
+{
+  "appId": "5c09f30cc56f0f00155a94a2",
+    "_app": {
+        "appId": "5c09f30cc56f0f00155a94a2",
+        "caption": "sample",
+        "image": "/img/add-documents.svg",
+        "sequence": "5",
+        "status": true,
+        "access": "",
+        "customhtml": "",
+        "mobileCheck": false,
+        "mobileKeyRef1": "",
+        "mobileKeyRef2": ""
+    },
+    "columns": [
+        [
+            "ID",
+            "Text",
+            "Computed",
+            null,
+            {
+                "column": "5/9",
+                "row": "1/2",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Name",
+            "Text",
+            "Editable",
+            null,
+            {
+                "column": "1/5",
+                "row": "2/3",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Age",
+            "Number",
+            "Editable",
+            null,
+            {
+                "column": "5/9",
+                "row": "2/3",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Birth Date",
+            "Date",
+            "Editable",
+            null,
+            {
+                "column": "9/13",
+                "row": "2/3",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Remarks",
+            "Text Area",
+            "Editable",
+            null,
+            {
+                "column": "1/9",
+                "row": "3/4",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Marital Status",
+            "selection-option-Single,Married,Divorced",
+            "Editable",
+            null,
+            {
+                "column": "9/13",
+                "row": "3/4",
+                "orientation": "horizontal"
+            }
+        ],
+        [
+            "Estimated Yearly Income",
+            "Number",
+            "Editable",
+            null,
+            {
+                "column": "5/9",
+                "row": "4/5",
+                "orientation": "horizontal"
+            }
+        ]
+    ],
+    "__v": 0
+}
