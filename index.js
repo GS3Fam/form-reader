@@ -76,22 +76,37 @@ ipcMain.on('form:getAll', (e)=>{
 })
 
 ipcMain.on('form:getInitial', (e)=>{
-  // get all filenames
-  fs.readdir(path.join(__dirname, 'json'), (err, files) => {
-    // filter: JSON files
-    files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
-    // get first JSON
-    if(files[0]){
-      fs.readFile(path.join(__dirname, 'json', files[0]), 'utf8', function (err, data) {
-        if (err) throw err;
-        // send to view
-        w_main.webContents.send('form:getOne', JSON.parse(data))
-      });
+
+  require('dns').lookup('google.com',function(err) {
+    if(con = err && err.code == "ENOTFOUND"){
+      // get all filenames
+      fs.readdir(path.join(__dirname, 'json'), (err, files) => {
+        // filter: JSON files
+        files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
+        // get first JSON
+        if(files[0]){
+          fs.readFile(path.join(__dirname, 'json', files[0]), 'utf8', function (err, data) {
+            if (err) throw err;
+            // send to view
+            w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
+          });
+        }
+        else{
+          w_main ? w_main.webContents.send('form:empty') : 0
+        }
+      })
     }
     else{
-      w_main.webContents.send('form:empty')
+      FormData.find({}, (err, formdata)=>{
+        w_main ?
+          formdata[0] ?
+            w_main.webContents.send('form:getOne', formdata) :
+            w_main.webContents.send('form:empty')
+          : 0
+      });
+
     }
-  })
+  });
 })
 
 ipcMain.on('form:getOne', (e, json)=>{
@@ -102,12 +117,12 @@ ipcMain.on('form:getOne', (e, json)=>{
       fs.readFile(path.join(__dirname, 'json', json.filename), 'utf8', function (err, data) {
         if (err) throw err;
         // send to view
-        w_main.webContents.send('form:getOne', JSON.parse(data))
+        w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
       });
     }
     else{
       FormData.find({appId: json.appId}, (err, formdata)=>{
-        w_main.webContents.send('form:getOne', formdata)
+        w_main ? w_main.webContents.send('form:getOne', formdata) : 0
       });
     }
   })
@@ -117,6 +132,7 @@ ipcMain.on('form:getOne', (e, json)=>{
 
 ipcMain.on('form:post', (e, doc)=>{
   doc['id'] = makeId(8,'numbers')
+
   // get all filenames
   fs.readdir(path.join(__dirname, 'jsonData'), (err, files) => {
     // filter: JSON files
@@ -166,7 +182,7 @@ ipcMain.on('form:post', (e, doc)=>{
     }
 
     // w_main.reload()
-    w_main.webContents.send('form:post')
+    w_main ? w_main.webContents.send('form:post') : 0
 
   })
 

@@ -68,6 +68,7 @@
       });
 
       ipcRenderer.on('form:getOne', (e, json)=>{
+        console.log(json)
         json[0] ? json = json[0]._doc : 0
 
         $(`form`).html('')
