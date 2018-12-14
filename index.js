@@ -11,6 +11,7 @@ mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader",
 
 // Models
 let FormData = require("./models/formdata");
+let Dynamic = require("./models/dynamic");
 
 // Windows
 let w_main;
@@ -61,12 +62,17 @@ ipcMain.on('form:getAll', (e)=>{
     }
     else{
       FormData.find({}, (err, formdata)=>{
-        let files_doc = formdata.reduce((temp, data, i)=>{
-          let {appId, caption} = data._app
-          temp.push({ appId: appId, caption : caption, filename : null })
-          return temp;
-        },[])
-        w_main ? w_main.webContents.send('form:getAll', files_doc) : 0
+        if(formdata[0]){
+          let files_doc = formdata.reduce((temp, data, i)=>{
+            let {appId, caption} = data._app
+            temp.push({ appId: appId, caption : caption, filename : null })
+            return temp;
+          },[])
+          w_main ? w_main.webContents.send('form:getAll', files_doc) : 0
+        }
+        else{
+          w_main ? w_main.webContents.send('form:empty') : 0
+        }
       })
     }
   })
@@ -184,7 +190,13 @@ ipcMain.on('form:post', (e, doc)=>{
     // w_main.reload()
     w_main ? w_main.webContents.send('form:post') : 0
 
+
   })
+
+  // new Dynamic(doc.appId)({name: 'Jon'}).save(err => {
+  //   console.log(err);
+  //   w_main ? w_main.webContents.send('form:post') : 0
+  // })
 
 })
 
