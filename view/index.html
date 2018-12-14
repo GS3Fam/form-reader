@@ -55,7 +55,7 @@
           $(`#sidebar .file-list p[appId=${$(`form`).attr(`appId`)}]`).addClass('selected') : 0
 
         $(`#sidebar .file-list p`).on('click', function(){
-          ipcRenderer.send('form:getOne',$(this).attr(`filename`))
+          ipcRenderer.send('form:getOne',{filename: $(this).attr(`filename`), appId: $(this).attr(`appId`)})
           $(`#sidebar .file-list p`).removeClass('selected')
           $(this).addClass('selected')
         });
@@ -68,6 +68,8 @@
       });
 
       ipcRenderer.on('form:getOne', (e, json)=>{
+        json[0] ? json = json[0]._doc : 0
+
         $(`form`).html('')
 
         // caption
@@ -76,6 +78,7 @@
 
         // sidebar selected
         $(`form`).attr(`appId`,json._app.appId)
+        $(`#sidebar .file-list p`).removeClass('selected')
         $(`#sidebar .file-list p[appId=${$(`form`).attr(`appId`)}]`).addClass('selected')
 
         // fields

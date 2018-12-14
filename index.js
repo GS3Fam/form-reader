@@ -4,8 +4,15 @@ const
   path = require('path'),
   fs = require('fs'),
   {app, BrowserWindow, Menu, ipcMain} = electron,
+  mongoose = require("mongoose"),
   makeId = require('./modules/makeId');
 
+mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true});
+
+// Models
+let FormData = require("./models/formdata");
+
+// Windows
 let w_main;
 
 // Initial ---------------------------------------------------------------------
@@ -32,22 +39,40 @@ function fWindowMain(){
 // Events ----------------------------------------------------------------------
 
 ipcMain.on('form:getAll', (e)=>{
-  // get all filenames
-  fs.readdir(path.join(__dirname, 'json'), (err, files) => {
-    // filter: JSON files
-    files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
-    // get JSON properties
-    let files_doc = files.reduce((temp, file, i)=>{
-      let data = fs.readFileSync(path.join(__dirname, 'json', file), {encoding: "utf8"});
-      if(JSON.parse(data)._app){
-        let { appId, caption } = JSON.parse(data)._app;
-        temp.push({ appId: appId, caption: caption, filename: file });
-      }
-      return temp;
-    },[])
-    // send to view
-    w_main.webContents.send('form:getAll', files_doc)
+
+  require('dns').lookup('google.com',function(err) {
+    if(con = err && err.code == "ENOTFOUND"){
+      // get all filenames
+      fs.readdir(path.join(__dirname, 'json'), (err, files) => {
+        // filter: JSON files
+        files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
+        // get JSON properties
+        let files_doc = files.reduce((temp, file, i)=>{
+          let data = fs.readFileSync(path.join(__dirname, 'json', file), {encoding: "utf8"});
+          if(JSON.parse(data)._app){
+            let { appId, caption } = JSON.parse(data)._app;
+            temp.push({ appId: appId, caption: caption, filename: file });
+          }
+          return temp;
+        },[])
+        // send to view
+        w_main ? w_main.webContents.send('form:getAll', files_doc) : 0
+      })
+    }
+    else{
+      FormData.find({}, (err, formdata)=>{
+        let files_doc = formdata.reduce((temp, data, i)=>{
+          let {appId, caption} = data._app
+          temp.push({ appId: appId, caption : caption, filename : null })
+          return temp;
+        },[])
+        w_main ? w_main.webContents.send('form:getAll', files_doc) : 0
+      })
+    }
   })
+
+
+
 })
 
 ipcMain.on('form:getInitial', (e)=>{
@@ -70,12 +95,24 @@ ipcMain.on('form:getInitial', (e)=>{
 })
 
 ipcMain.on('form:getOne', (e, json)=>{
-  // get selected JSON
-  fs.readFile(path.join(__dirname, 'json', json), 'utf8', function (err, data) {
-    if (err) throw err;
-    // send to view
-    w_main.webContents.send('form:getOne', JSON.parse(data))
-  });
+
+  require('dns').lookup('google.com',function(err) {
+    if(con = err && err.code == "ENOTFOUND" && json.filename){
+      // get selected JSON
+      fs.readFile(path.join(__dirname, 'json', json.filename), 'utf8', function (err, data) {
+        if (err) throw err;
+        // send to view
+        w_main.webContents.send('form:getOne', JSON.parse(data))
+      });
+    }
+    else{
+      FormData.find({appId: json.appId}, (err, formdata)=>{
+        w_main.webContents.send('form:getOne', formdata)
+      });
+    }
+  })
+
+
 })
 
 ipcMain.on('form:post', (e, doc)=>{
