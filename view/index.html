@@ -15,7 +15,8 @@
   <div>
     <div id="sidebar">
       <div class="header">
-        <p class="m-0">Apps</p>
+        <p class="m-0 inl-blk">Apps</p>
+        <p class="status mt-1 inl-blk fs-07em fl-r"></p>
       </div>
       <div class="file-list"></div>
     </div>
@@ -45,7 +46,14 @@
       // Request Get Initial
       ipcRenderer.send('form:getInitial')
 
-      ipcRenderer.on('form:getAll', (e, files)=>{
+      ipcRenderer.on('form:getAll', (e, json)=>{
+        let {files, con} = json
+
+        // connection status
+        con ?
+          $(`#sidebar > .header .status`).css('color','#00AF66').text('Online') :
+          $(`#sidebar > .header .status`).css('color','#6c757d').text('Offline')
+
         $(`#sidebar .file-list`).html(``)
         files.forEach((data)=>{
           $(`#sidebar .file-list`).append(`

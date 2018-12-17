@@ -57,7 +57,7 @@ ipcMain.on('form:getAll', (e)=>{
           return temp;
         },[])
         // send to view
-        w_main ? w_main.webContents.send('form:getAll', files_doc) : 0
+        w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: false}) : 0
       })
     }
     else{
@@ -68,7 +68,7 @@ ipcMain.on('form:getAll', (e)=>{
             temp.push({ appId: appId, caption : caption, filename : null })
             return temp;
           },[])
-          w_main ? w_main.webContents.send('form:getAll', files_doc) : 0
+          w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: true}) : 0
         }
         else{
           w_main ? w_main.webContents.send('form:empty') : 0
