@@ -70,25 +70,28 @@ ipcMain.on('form:getAll', (e)=>{
       })
     }
     else{
+      // mongoose: connect if not connected
       mongoose.connection.readyState == 0 ?
         mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-      FormData.find().sort({"_app.caption": 1}).exec().then(formdata =>{
-        if(formdata){
-          let files_doc = formdata.reduce((temp, data, i)=>{
-            let {appId, caption} = data._app
-            temp.push({ appId: appId, caption : caption, filename : null })
-            return temp;
-          },[])
-          w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: true}) : 0
-        }
-        else{
-          w_main ? w_main.webContents.send('form:empty') : 0
-        }
-      })
-      .catch(err =>{
-        console.log(err)
-
-      })
+      // mongoose: if connected
+      if(mongoose.connection.readyState == 1){
+        FormData.find().sort({"_app.caption": 1}).exec().then(formdata =>{
+          if(formdata){
+            let files_doc = formdata.reduce((temp, data, i)=>{
+              let {appId, caption} = data._app
+              temp.push({ appId: appId, caption : caption, filename : null })
+              return temp;
+            },[])
+            w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: true}) : 0
+          }
+          else{
+            w_main ? w_main.webContents.send('form:empty') : 0
+          }
+        })
+        .catch(err =>{
+          console.log(err)
+        })
+      }
     }
   })
 
@@ -117,21 +120,24 @@ ipcMain.on('form:getInitial', (e)=>{
       })
     }
     else{
+      // mongoose: connect if not connected
       mongoose.connection.readyState == 0 ?
         mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-      FormData.find().then(formdata=>{
-        w_main ?
-          formdata ?
-            formdata[0] ?
-              w_main.webContents.send('form:getOne', formdata) :
-              w_main.webContents.send('form:empty')
-            : w_main.webContents.send('form:empty')
-          : 0
-      })
-      .catch(err =>{
-        console.log(err)
-      })
-
+      // mongoose: if connected
+      if(mongoose.connection.readyState == 1 || mongoose.connection.readyState == 2){
+        FormData.find().then(formdata=>{
+          w_main ?
+            formdata ?
+              formdata[0] ?
+                w_main.webContents.send('form:getOne', formdata) :
+                w_main.webContents.send('form:empty')
+              : w_main.webContents.send('form:empty')
+            : 0
+        })
+        .catch(err =>{
+          console.log(err)
+        })
+      }
     }
   });
 
@@ -150,17 +156,20 @@ ipcMain.on('form:getOne', (e, json)=>{
       });
     }
     else{
+      // mongoose: connect if not connected
       mongoose.connection.readyState == 0 ?
         mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-      FormData.find({appId: json.appId}).then(formdata=>{
-        w_main ? w_main.webContents.send('form:getOne', formdata) : 0
-      })
-      .catch(err =>{
-        console.log(err)
-      })
+      // mongoose: if connected
+      if(mongoose.connection.readyState == 1){
+        FormData.find({appId: json.appId}).then(formdata=>{
+          w_main ? w_main.webContents.send('form:getOne', formdata) : 0
+        })
+        .catch(err =>{
+          console.log(err)
+        })
+      }
     }
   });
-
 });
 
 ipcMain.on('form:post', (e, doc)=>{
@@ -217,12 +226,16 @@ ipcMain.on('form:post', (e, doc)=>{
         w_main ? w_main.webContents.send('form:post') : 0
       }
       else{
+        // mongoose: connect if not connected
         mongoose.connection.readyState == 0 ?
           mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-        new AppData(appId)(doc).save(err => {
-          console.log(err);
-          w_main ? w_main.webContents.send('form:post') : 0
-        })
+        // mongoose: if connected
+        if(mongoose.connection.readyState == 1){
+          new AppData(appId)(doc).save(err => {
+            console.log(err);
+            w_main ? w_main.webContents.send('form:post') : 0
+          })
+        }
       }
     });
 
