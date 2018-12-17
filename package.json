@@ -18,6 +18,7 @@
   "homepage": "https://github.com/GS3Fam/form-reader#readme",
   "dependencies": {
     "jquery": "^3.3.1",
+    "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "mongoose": "^5.3.15"
   },

@@ -5,7 +5,8 @@ const
   fs = require('fs'),
   {app, BrowserWindow, Menu, ipcMain} = electron,
   mongoose = require("mongoose"),
-  makeId = require('./modules/makeId');
+  makeId = require('./modules/makeId'),
+  _ = require('lodash');
 
 mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true});
 
@@ -41,6 +42,11 @@ function fWindowMain(){
 
 ipcMain.on('form:getAll', (e)=>{
 
+  // let json1 = fs.readFileSync(path.join(__dirname, '_formdata', 'Equipment Concerns.json'), {encoding: "utf8"});
+  // let json2 = fs.readFileSync(path.join(__dirname, '_formdata', 'Equipment Concerns2.json'), {encoding: "utf8"});
+  //
+  // _.isEqual(json1, json2) ? console.log('=') : console.log('!=')
+
   require('dns').lookup('google.com',function(err) {
     if(con = err && err.code == "ENOTFOUND"){
       // get all filenames
@@ -61,7 +67,7 @@ ipcMain.on('form:getAll', (e)=>{
       })
     }
     else{
-      FormData.find({}, (err, formdata)=>{
+      FormData.find().sort({"_app.caption": 1}).exec().then(formdata =>{
         if(formdata){
           let files_doc = formdata.reduce((temp, data, i)=>{
             let {appId, caption} = data._app
@@ -74,6 +80,9 @@ ipcMain.on('form:getAll', (e)=>{
           w_main ? w_main.webContents.send('form:empty') : 0
         }
       })
+      .catch(err =>{
+        console.log(err)
+      })
     }
   })
 
@@ -83,7 +92,6 @@ ipcMain.on('form:getInitial', (e)=>{
 
   require('dns').lookup('google.com',function(err) {
     if(con = err && err.code == "ENOTFOUND"){
-      console.log('x')
       // get all filenames
       fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
         // filter: JSON files
@@ -102,13 +110,18 @@ ipcMain.on('form:getInitial', (e)=>{
       })
     }
     else{
-      FormData.find({}, (err, formdata)=>{
+      FormData.find().then(formdata=>{
         w_main ?
-          formdata[0] ?
-            w_main.webContents.send('form:getOne', formdata) :
-            w_main.webContents.send('form:empty')
+          formdata ?
+            formdata[0] ?
+              w_main.webContents.send('form:getOne', formdata) :
+              w_main.webContents.send('form:empty')
+            : w_main.webContents.send('form:empty')
           : 0
-      });
+      })
+      .catch(err =>{
+        console.log(err)
+      })
 
     }
   });
@@ -127,9 +140,12 @@ ipcMain.on('form:getOne', (e, json)=>{
       });
     }
     else{
-      FormData.find({appId: json.appId}, (err, formdata)=>{
+      FormData.find({appId: json.appId}).then(formdata=>{
         w_main ? w_main.webContents.send('form:getOne', formdata) : 0
-      });
+      })
+      .catch(err =>{
+        console.log(err)
+      })
     }
   });
 
@@ -198,7 +214,6 @@ ipcMain.on('form:post', (e, doc)=>{
   })
 
 });
-
 
 // Menu ------------------------------------------------------------------------
 
