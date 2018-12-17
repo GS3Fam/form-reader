@@ -47,8 +47,11 @@ ipcMain.on('form:getAll', (e)=>{
   //
   // _.isEqual(json1, json2) ? console.log('=') : console.log('!=')
 
+  console.log(mongoose.connection.readyState)
+
   require('dns').lookup('google.com',function(err) {
     if(con = err && err.code == "ENOTFOUND"){
+      mongoose.connection.close()
       // get all filenames
       fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
         // filter: JSON files
@@ -67,6 +70,8 @@ ipcMain.on('form:getAll', (e)=>{
       })
     }
     else{
+      mongoose.connection.readyState == 0 ?
+        mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
       FormData.find().sort({"_app.caption": 1}).exec().then(formdata =>{
         if(formdata){
           let files_doc = formdata.reduce((temp, data, i)=>{
@@ -82,6 +87,7 @@ ipcMain.on('form:getAll', (e)=>{
       })
       .catch(err =>{
         console.log(err)
+
       })
     }
   })
@@ -92,6 +98,7 @@ ipcMain.on('form:getInitial', (e)=>{
 
   require('dns').lookup('google.com',function(err) {
     if(con = err && err.code == "ENOTFOUND"){
+      mongoose.connection.close()
       // get all filenames
       fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
         // filter: JSON files
@@ -110,6 +117,8 @@ ipcMain.on('form:getInitial', (e)=>{
       })
     }
     else{
+      mongoose.connection.readyState == 0 ?
+        mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
       FormData.find().then(formdata=>{
         w_main ?
           formdata ?
@@ -132,6 +141,7 @@ ipcMain.on('form:getOne', (e, json)=>{
 
   require('dns').lookup('google.com',function(err) {
     if(con = err && err.code == "ENOTFOUND" && json.filename){
+      mongoose.connection.close()
       // get selected JSON
       fs.readFile(path.join(__dirname, '_formdata', json.filename), 'utf8', function (err, data) {
         if (err) throw err;
@@ -140,6 +150,8 @@ ipcMain.on('form:getOne', (e, json)=>{
       });
     }
     else{
+      mongoose.connection.readyState == 0 ?
+        mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
       FormData.find({appId: json.appId}).then(formdata=>{
         w_main ? w_main.webContents.send('form:getOne', formdata) : 0
       })
@@ -201,9 +213,12 @@ ipcMain.on('form:post', (e, doc)=>{
 
     require('dns').lookup('google.com',function(err) {
       if(con = err && err.code == "ENOTFOUND" && json.filename){
+        mongoose.connection.close()
         w_main ? w_main.webContents.send('form:post') : 0
       }
       else{
+        mongoose.connection.readyState == 0 ?
+          mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
         new AppData(appId)(doc).save(err => {
           console.log(err);
           w_main ? w_main.webContents.send('form:post') : 0
