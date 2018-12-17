@@ -62,7 +62,7 @@ ipcMain.on('form:getAll', (e)=>{
     }
     else{
       FormData.find({}, (err, formdata)=>{
-        if(formdata[0]){
+        if(formdata){
           let files_doc = formdata.reduce((temp, data, i)=>{
             let {appId, caption} = data._app
             temp.push({ appId: appId, caption : caption, filename : null })
