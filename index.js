@@ -11,7 +11,7 @@ mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader",
 
 // Models
 let FormData = require("./models/formdata");
-let Dynamic = require("./models/dynamic");
+let AppData = require("./models/appdata");
 
 // Windows
 let w_main;
@@ -77,9 +77,7 @@ ipcMain.on('form:getAll', (e)=>{
     }
   })
 
-
-
-})
+});
 
 ipcMain.on('form:getInitial', (e)=>{
 
@@ -113,7 +111,8 @@ ipcMain.on('form:getInitial', (e)=>{
 
     }
   });
-})
+
+});
 
 ipcMain.on('form:getOne', (e, json)=>{
 
@@ -131,12 +130,12 @@ ipcMain.on('form:getOne', (e, json)=>{
         w_main ? w_main.webContents.send('form:getOne', formdata) : 0
       });
     }
-  })
+  });
 
-
-})
+});
 
 ipcMain.on('form:post', (e, doc)=>{
+  var appId = doc.appId;
   doc['id'] = makeId(8,'numbers')
 
   // get all filenames
@@ -158,7 +157,7 @@ ipcMain.on('form:post', (e, doc)=>{
 
     // if JSON Data exists
     if(jsonData.appId){
-      let filename = jsonData.filename
+      var filename = jsonData.filename
       delete jsonData.filename
       delete doc.appId
 
@@ -169,37 +168,35 @@ ipcMain.on('form:post', (e, doc)=>{
 
       // push to json
       jsonData.documents.push(doc)
-
-      fs.writeFile(path.join(__dirname, 'jsonData', filename), JSON.stringify(jsonData, null, 2), 'utf8', function(){
-        console.log('saved')
-      });
     }
     else{
-      let appId = doc.appId
+      let filename = `${appId}.json`
       delete doc.appId
       let jsonData = {
         appId : appId,
         documents : [doc]
       }
-
-      fs.writeFile(path.join(__dirname, 'jsonData', `${appId}.json`), JSON.stringify(jsonData, null, 2), 'utf8', function(){
-        console.log('saved')
-      });
     }
 
-    // w_main.reload()
-    w_main ? w_main.webContents.send('form:post') : 0
+    fs.writeFile(path.join(__dirname, 'jsonData', filename), JSON.stringify(jsonData, null, 2), 'utf8', function(){
+      console.log('saved')
+    });
 
+    require('dns').lookup('google.com',function(err) {
+      if(con = err && err.code == "ENOTFOUND" && json.filename){
+        w_main ? w_main.webContents.send('form:post') : 0
+      }
+      else{
+        new AppData(appId)(doc).save(err => {
+          console.log(err);
+          w_main ? w_main.webContents.send('form:post') : 0
+        })
+      }
+    });
 
   })
 
-  // new Dynamic(doc.appId)({name: 'Jon'}).save(err => {
-  //   console.log(err);
-  //   w_main ? w_main.webContents.send('form:post') : 0
-  // })
-
-})
-
+});
 
 
 // Menu ------------------------------------------------------------------------
