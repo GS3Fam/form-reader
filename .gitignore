@@ -1,4 +1,7 @@
 node_modules
-jsonData
+./jsonData/*
 json
 jsonx
+jsonData/5be272078c3bf00013673538.json
+jsonData/5b95ca9cf42537001483d2e4.json
+index.js
