@@ -17,4 +17,4 @@ let
     columns: { type : Array , "default" : [] }
   });
 
-let model = module.exports = mongoose.model("formdatas", schema);
+let model = module.exports = mongoose.model('formdata', schema, 'formdata');

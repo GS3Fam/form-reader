@@ -44,12 +44,12 @@ ipcMain.on('form:getAll', (e)=>{
   require('dns').lookup('google.com',function(err) {
     if(con = err && err.code == "ENOTFOUND"){
       // get all filenames
-      fs.readdir(path.join(__dirname, 'json'), (err, files) => {
+      fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
         // filter: JSON files
         files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
         // get JSON properties
         let files_doc = files.reduce((temp, file, i)=>{
-          let data = fs.readFileSync(path.join(__dirname, 'json', file), {encoding: "utf8"});
+          let data = fs.readFileSync(path.join(__dirname, '_formdata', file), {encoding: "utf8"});
           if(JSON.parse(data)._app){
             let { appId, caption } = JSON.parse(data)._app;
             temp.push({ appId: appId, caption: caption, filename: file });
@@ -83,13 +83,14 @@ ipcMain.on('form:getInitial', (e)=>{
 
   require('dns').lookup('google.com',function(err) {
     if(con = err && err.code == "ENOTFOUND"){
+      console.log('x')
       // get all filenames
-      fs.readdir(path.join(__dirname, 'json'), (err, files) => {
+      fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
         // filter: JSON files
         files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
         // get first JSON
         if(files[0]){
-          fs.readFile(path.join(__dirname, 'json', files[0]), 'utf8', function (err, data) {
+          fs.readFile(path.join(__dirname, '_formdata', files[0]), 'utf8', function (err, data) {
             if (err) throw err;
             // send to view
             w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
@@ -119,7 +120,7 @@ ipcMain.on('form:getOne', (e, json)=>{
   require('dns').lookup('google.com',function(err) {
     if(con = err && err.code == "ENOTFOUND" && json.filename){
       // get selected JSON
-      fs.readFile(path.join(__dirname, 'json', json.filename), 'utf8', function (err, data) {
+      fs.readFile(path.join(__dirname, '_formdata', json.filename), 'utf8', function (err, data) {
         if (err) throw err;
         // send to view
         w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
@@ -139,12 +140,12 @@ ipcMain.on('form:post', (e, doc)=>{
   doc['id'] = makeId(8,'numbers')
 
   // get all filenames
-  fs.readdir(path.join(__dirname, 'jsonData'), (err, files) => {
+  fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
     // filter: JSON files
     files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
     // get target JSON Data
     let jsonData = files.reduce((temp, file, i)=>{
-      let obj = fs.readFileSync(path.join(__dirname, 'jsonData', file), {encoding: "utf8"});
+      let obj = fs.readFileSync(path.join(__dirname, '_appdata', file), {encoding: "utf8"});
       if(obj){
         let appId = JSON.parse(obj).appId
         if(appId == doc.appId){
@@ -178,7 +179,7 @@ ipcMain.on('form:post', (e, doc)=>{
       }
     }
 
-    fs.writeFile(path.join(__dirname, 'jsonData', filename), JSON.stringify(jsonData, null, 2), 'utf8', function(){
+    fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', function(){
       console.log('saved')
     });
 
