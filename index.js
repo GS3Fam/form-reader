@@ -145,7 +145,7 @@ ipcMain.on('form:post', (e, doc)=>{
     // get target JSON Data
     let jsonData = files.reduce((temp, file, i)=>{
       let obj = fs.readFileSync(path.join(__dirname, 'jsonData', file), {encoding: "utf8"});
-      if(JSON.parse(obj)){
+      if(obj){
         let appId = JSON.parse(obj).appId
         if(appId == doc.appId){
           temp = JSON.parse(obj);
@@ -170,9 +170,9 @@ ipcMain.on('form:post', (e, doc)=>{
       jsonData.documents.push(doc)
     }
     else{
-      let filename = `${appId}.json`
+      var filename = `${appId}.json`
       delete doc.appId
-      let jsonData = {
+      jsonData = {
         appId : appId,
         documents : [doc]
       }

@@ -88,8 +88,6 @@
 
   .va-t {vertical-align: top} .va-t-imp {vertical-align: top !important}
   .va-b {vertical-align: bottom} .va-b-imp {vertical-align: bottom !important}
-  .va-ba {vertical-align: baseline} .va-ba-imp {vertical-align: baseline !important}
-
 
 /* Cursor ------------------------------------------------------------------- */
   .cur-def {cursor: default} .cur-def-imp {cursor: default !important}
