@@ -8,8 +8,6 @@ const
   makeId = require('./modules/makeId'),
   _ = require('lodash');
 
-mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true});
-
 // Models
 let FormData = require("./models/formdata");
 let AppData = require("./models/appdata");
@@ -180,6 +178,7 @@ ipcMain.on('form:getOne', (e, json)=>{
 ipcMain.on('form:post', (e, doc)=>{
   var appId = doc.appId; delete doc.appId;
   doc['_id'] = makeId(8,'numbers');
+  doc['_updated'] = Date();
 
   // get all filenames
   fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
