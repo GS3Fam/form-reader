@@ -259,7 +259,7 @@ ipcMain.on('form:post', (e, doc)=>{
             delete jsonData.filename
 
             // write local
-            fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8');
+            fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', ()=>{});
 
             w_main ? w_main.webContents.send('form:post') : 0
           })
