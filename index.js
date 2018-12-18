@@ -178,8 +178,7 @@ ipcMain.on('form:getOne', (e, json)=>{
 });
 
 ipcMain.on('form:post', (e, doc)=>{
-  var appId = doc.appId;
-  delete doc.appId;
+  var appId = doc.appId; delete doc.appId;
   doc['_id'] = makeId(8,'numbers');
 
   // get all filenames
@@ -200,8 +199,7 @@ ipcMain.on('form:post', (e, doc)=>{
 
     // if JSON Data exists
     if(jsonData.appId){
-      var filename = jsonData.filename
-      delete jsonData.filename
+      var filename = jsonData.filename; delete jsonData.filename;
 
       // check id
       while (jsonData.documents.filter( data => data._id == doc._id )[0]){
@@ -212,64 +210,69 @@ ipcMain.on('form:post', (e, doc)=>{
       jsonData.documents.push(doc)
     }
     else{
-      var filename = `${appId}.json`
-      jsonData = {
-        appId : appId,
-        documents : [doc]
-      }
+      var filename = `${appId}.json`;
+      jsonData = { appId : appId, documents : [doc] };
     }
 
-    fs.writeFileSync(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8');
+    fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', ()=>{
 
-    require('dns').lookup('google.com',function(err) {
-      if(con = err && err.code == "ENOTFOUND"){
-        mongoose.connection.close()
-        w_main ? w_main.webContents.send('form:post') : 0
-      }
-      else{
-        // mongoose: connect if not connected
-        mongoose.connection.readyState == 0 ?
-          mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-
-        // mongoose: if connected
-        if(mongoose.connection.readyState == 1){
-          var documentId = doc._id
-          delete doc._id;
-
-          new AppData(appId)(doc).save(function(err,newDoc){
-            if (err) console.log(err);
-            let {_id} = newDoc;
-
-            // update local file id
-            let jsonData = files.reduce((temp, file, i)=>{
-              let obj = fs.readFileSync(path.join(__dirname, '_appdata', file), {encoding: "utf8"});
-              if(obj){
-                if(JSON.parse(obj).appId == appId){
-                  temp = JSON.parse(obj);
-                  temp.documents.forEach((data)=>{
-                    data._id == documentId ? data._id = _id : 0
-                  })
-                  temp['filename'] = file;
-                }
-              }
-              return temp;
-            },{})
-
-            filename = jsonData.filename
-            delete jsonData.filename
-
-            // write local
-            fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', ()=>{});
-
-            w_main ? w_main.webContents.send('form:post') : 0
-          })
+      require('dns').lookup('google.com',function(err) {
+        if(con = err && err.code == "ENOTFOUND"){
+          mongoose.connection.close()
         }
-      }
+        else{
+          // mongoose: connect if not connected
+          mongoose.connection.readyState == 0 ?
+            mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
+
+          // mongoose: if connected
+          if(mongoose.connection.readyState == 1){
+            mongoFormPost(doc, appId)
+          }
+        }
+      });
+
     });
+
+    w_main ? w_main.webContents.send('form:post') : 0
 
   })
 
 });
+
+function mongoFormPost(doc, appId){
+  var documentId = doc._id; delete doc._id;
+
+  new AppData(appId)(doc).save(function(err,newDoc){
+    if (err) console.log(err);
+    let {_id} = newDoc;
+
+    fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
+      // filter: JSON files
+      files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
+
+      // update local file id
+      let jsonData = files.reduce((temp, file, i)=>{
+        let obj = fs.readFileSync(path.join(__dirname, '_appdata', file), {encoding: "utf8"});
+        if(obj){
+          if(JSON.parse(obj).appId == appId){
+            temp = JSON.parse(obj);
+            temp.documents.forEach( data => data._id == documentId ? data._id = _id : 0 )
+            temp['filename'] = file;
+          }
+        }
+        return temp;
+      },{})
+
+      let filename = jsonData.filename; delete jsonData.filename
+
+      // write local
+      fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', ()=>{});
+
+    });
+
+  })
+}
 
 // Menu ------------------------------------------------------------------------
 
