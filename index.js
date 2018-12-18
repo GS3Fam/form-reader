@@ -40,6 +40,10 @@ function fWindowMain(){
 
 // Events ----------------------------------------------------------------------
 
+function syncData(){
+
+}
+
 ipcMain.on('form:getAll', (e)=>{
 
   // let json1 = fs.readFileSync(path.join(__dirname, '_formdata', 'Equipment Concerns.json'), {encoding: "utf8"});
@@ -47,7 +51,7 @@ ipcMain.on('form:getAll', (e)=>{
   //
   // _.isEqual(json1, json2) ? console.log('=') : console.log('!=')
 
-  console.log(mongoose.connection.readyState)
+  // console.log(mongoose.connection.readyState)
 
   require('dns').lookup('google.com',function(err) {
     if(con = err && err.code == "ENOTFOUND"){
@@ -65,7 +69,7 @@ ipcMain.on('form:getAll', (e)=>{
           }
           return temp;
         },[])
-        // send to view
+
         w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: false}) : 0
       })
     }
@@ -75,6 +79,8 @@ ipcMain.on('form:getAll', (e)=>{
         mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
       // mongoose: if connected
       if(mongoose.connection.readyState == 1){
+        syncData();
+
         FormData.find().sort({"_app.caption": 1}).exec().then(formdata =>{
           if(formdata){
             let files_doc = formdata.reduce((temp, data, i)=>{
@@ -110,7 +116,7 @@ ipcMain.on('form:getInitial', (e)=>{
         if(files[0]){
           fs.readFile(path.join(__dirname, '_formdata', files[0]), 'utf8', function (err, data) {
             if (err) throw err;
-            // send to view
+
             w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
           });
         }
@@ -123,7 +129,7 @@ ipcMain.on('form:getInitial', (e)=>{
       // mongoose: connect if not connected
       mongoose.connection.readyState == 0 ?
         mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-      // mongoose: if connected
+      // mongoose: if connected/connecting
       if(mongoose.connection.readyState == 1 || mongoose.connection.readyState == 2){
         FormData.find().then(formdata=>{
           w_main ?
@@ -151,7 +157,6 @@ ipcMain.on('form:getOne', (e, json)=>{
       // get selected JSON
       fs.readFile(path.join(__dirname, '_formdata', json.filename), 'utf8', function (err, data) {
         if (err) throw err;
-        // send to view
         w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
       });
     }
@@ -174,7 +179,8 @@ ipcMain.on('form:getOne', (e, json)=>{
 
 ipcMain.on('form:post', (e, doc)=>{
   var appId = doc.appId;
-  doc['id'] = makeId(8,'numbers')
+  delete doc.appId;
+  doc['_id'] = makeId(8,'numbers');
 
   // get all filenames
   fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
@@ -184,10 +190,9 @@ ipcMain.on('form:post', (e, doc)=>{
     let jsonData = files.reduce((temp, file, i)=>{
       let obj = fs.readFileSync(path.join(__dirname, '_appdata', file), {encoding: "utf8"});
       if(obj){
-        let appId = JSON.parse(obj).appId
-        if(appId == doc.appId){
+        if(JSON.parse(obj).appId == appId){
           temp = JSON.parse(obj);
-          temp['filename'] = file
+          temp['filename'] = file;
         }
       }
       return temp;
@@ -197,11 +202,10 @@ ipcMain.on('form:post', (e, doc)=>{
     if(jsonData.appId){
       var filename = jsonData.filename
       delete jsonData.filename
-      delete doc.appId
 
       // check id
-      while (jsonData.documents.filter( data => data.id == doc.id )[0]){
-        doc['id'] = makeId(8,'numbers')
+      while (jsonData.documents.filter( data => data._id == doc._id )[0]){
+        doc['_id'] = makeId(8,'numbers')
       }
 
       // push to json
@@ -209,19 +213,16 @@ ipcMain.on('form:post', (e, doc)=>{
     }
     else{
       var filename = `${appId}.json`
-      delete doc.appId
       jsonData = {
         appId : appId,
         documents : [doc]
       }
     }
 
-    fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', function(){
-      console.log('saved')
-    });
+    fs.writeFileSync(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8');
 
     require('dns').lookup('google.com',function(err) {
-      if(con = err && err.code == "ENOTFOUND" && json.filename){
+      if(con = err && err.code == "ENOTFOUND"){
         mongoose.connection.close()
         w_main ? w_main.webContents.send('form:post') : 0
       }
@@ -229,10 +230,37 @@ ipcMain.on('form:post', (e, doc)=>{
         // mongoose: connect if not connected
         mongoose.connection.readyState == 0 ?
           mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
+
         // mongoose: if connected
         if(mongoose.connection.readyState == 1){
-          new AppData(appId)(doc).save(err => {
-            console.log(err);
+          var documentId = doc._id
+          delete doc._id;
+
+          new AppData(appId)(doc).save(function(err,newDoc){
+            if (err) console.log(err);
+            let {_id} = newDoc;
+
+            // update local file id
+            let jsonData = files.reduce((temp, file, i)=>{
+              let obj = fs.readFileSync(path.join(__dirname, '_appdata', file), {encoding: "utf8"});
+              if(obj){
+                if(JSON.parse(obj).appId == appId){
+                  temp = JSON.parse(obj);
+                  temp.documents.forEach((data)=>{
+                    data._id == documentId ? data._id = _id : 0
+                  })
+                  temp['filename'] = file;
+                }
+              }
+              return temp;
+            },{})
+
+            filename = jsonData.filename
+            delete jsonData.filename
+
+            // write local
+            fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8');
+
             w_main ? w_main.webContents.send('form:post') : 0
           })
         }
