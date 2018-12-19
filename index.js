@@ -45,8 +45,6 @@ function syncData(){
       // filter: JSON files
       files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
 
-      console.log(m_formData.length)
-
       // loop m_formData
       let matchResults = m_formData.reduce((m_temp, mlab)=>{
         mlab = mlab.toObject();
@@ -90,149 +88,114 @@ function syncData(){
     });
 
   })
+
+  console.log('synced')
+}
+function sortCaptions(a,b) {
+  if (a.caption < b.caption) return -1;
+  if (a.caption > b.caption) return 1;
+  return 0;
 }
 
 ipcMain.on('form:getAll', (e)=>{
-
-  // let json1 = fs.readFileSync(path.join(__dirname, '_formdata', 'Equipment Concerns.json'), {encoding: "utf8"});
-  // let json2 = fs.readFileSync(path.join(__dirname, '_formdata', 'Equipment Concerns2.json'), {encoding: "utf8"});
-  //
-  // _.isEqual(json1, json2) ? console.log('=') : console.log('!=')
-
   // console.log(mongoose.connection.readyState)
 
-  require('dns').lookup('google.com',function(err) {
-    if(con = err && err.code == "ENOTFOUND"){
-      mongoose.connection.close()
-      // get all filenames
-      fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
-        // filter: JSON files
-        files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
-        // get JSON properties
-        let files_doc = files.reduce((temp, file, i)=>{
-          try{
-            let data = fs.readFileSync(path.join(__dirname, '_formdata', file), {encoding: "utf8"});
-            if(JSON.parse(data)._app){
-              let { appId, caption } = JSON.parse(data)._app;
-              temp.push({ appId: appId, caption: caption, filename: file });
-            }
-          }
-          catch(err){
-            console.log('file error')
-          }
-          return temp;
-        },[])
-
-        w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: false}) : 0
-      })
-    }
-    else{
-      // mongoose: connect if not connected
-      mongoose.connection.readyState == 0 ?
-        mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-      // mongoose: if connected
-      if(mongoose.connection.readyState == 1){
-        syncData();
-
-        FormData.find().sort({"_app.caption": 1}).exec().then(formdata =>{
-          if(formdata){
-            let files_doc = formdata.reduce((temp, data, i)=>{
-              let {appId, caption} = data._app
-              temp.push({ appId: appId, caption : caption, filename : null })
-              return temp;
-            },[])
-            w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: true}) : 0
-          }
-          else{
-            w_main ? w_main.webContents.send('form:empty') : 0
-          }
-        })
-        .catch(err =>{
-          console.log(err)
-        })
+  // get all filenames
+  fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
+    // filter: JSON files
+    files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
+    // get JSON properties
+    let files_doc = files.reduce((temp, file, i)=>{
+      try{
+        let data = fs.readFileSync(path.join(__dirname, '_formdata', file), {encoding: "utf8"});
+        if(JSON.parse(data)._app){
+          let { appId, caption } = JSON.parse(data)._app;
+          temp.push({ appId: appId, caption: caption, filename: file });
+        }
       }
-    }
+      catch(err){
+        console.log('file error')
+      }
+      return temp;
+    },[])
+
+    // sort files by caption
+    files_doc.sort(sortCaptions);
+
+    require('dns').lookup('google.com',function(err) {
+      if(con = err && err.code == "ENOTFOUND"){
+        mongoose.connection.close()
+        w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: false}) : 0
+      }
+      else{
+        w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: true}) : 0
+        // mongoose: connect if not connected
+        mongoose.connection.readyState == 0 ?
+          mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
+        // mongoose: if connected
+        if(mongoose.connection.readyState == 1){
+          syncData();
+        }
+      }
+
+    });
+
   })
 
 });
 
 ipcMain.on('form:getInitial', (e)=>{
 
-  require('dns').lookup('google.com',function(err) {
-    if(con = err && err.code == "ENOTFOUND"){
-      mongoose.connection.close()
-      // get all filenames
-      fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
-        // filter: JSON files
-        files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
-        // get first JSON
-        if(files[0]){
-          fs.readFile(path.join(__dirname, '_formdata', files[0]), 'utf8', function (err, data) {
-            if (err) throw err;
+  // get all filenames
+  fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
+    // filter: JSON files
+    files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
 
-            w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
-          });
+    let files_doc = files.reduce((temp, file, i)=>{
+      try{
+        let data = fs.readFileSync(path.join(__dirname, '_formdata', file), {encoding: "utf8"});
+        if(JSON.parse(data)._app){
+          let { appId, caption } = JSON.parse(data)._app;
+          temp.push({ appId: appId, caption: caption, filename: file });
         }
-        else{
-          w_main ? w_main.webContents.send('form:empty') : 0
-        }
-      })
+      }
+      catch(err){
+        console.log('file error')
+      }
+      return temp;
+    },[])
+
+    // sort files by caption
+    files_doc.sort(sortCaptions);
+
+    // get first JSON
+    if(files_doc[0]){
+      fs.readFile(path.join(__dirname, '_formdata', files_doc[0].filename), 'utf8', function (err, data) {
+        if (err) throw err;
+        w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
+      });
     }
     else{
-      // mongoose: connect if not connected
-      mongoose.connection.readyState == 0 ?
-        mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-      // mongoose: if connected/connecting
-      if(mongoose.connection.readyState == 1 || mongoose.connection.readyState == 2){
-        FormData.find().then(formdata=>{
-          w_main ?
-            formdata ?
-              formdata[0] ?
-                w_main.webContents.send('form:getOne', formdata) :
-                w_main.webContents.send('form:empty')
-              : w_main.webContents.send('form:empty')
-            : 0
-        })
-        .catch(err =>{
-          console.log(err)
-        })
-      }
+      w_main ? w_main.webContents.send('form:empty') : 0
     }
-  });
+  })
 
 });
 
 ipcMain.on('form:getOne', (e, json)=>{
 
-  require('dns').lookup('google.com',function(err) {
-    if(con = err && err.code == "ENOTFOUND" && json.filename){
-      mongoose.connection.close()
-      // get selected JSON
-      try {
-        fs.readFile(path.join(__dirname, '_formdata', json.filename), 'utf8', function (err, data) {
-          if (err) throw err;
-          w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
-        });
-      }
-      catch(err){
-        console.log('file error')
-      }
-    }
-    else{
-      // mongoose: connect if not connected
-      mongoose.connection.readyState == 0 ?
-        mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-      // mongoose: if connected
-      if(mongoose.connection.readyState == 1){
-        FormData.find({appId: json.appId}).then(formdata=>{
-          w_main ? w_main.webContents.send('form:getOne', formdata) : 0
-        })
-        .catch(err =>{
-          console.log(err)
-        })
-      }
-    }
-  });
+  mongoose.connection.close()
+  try {
+    // get selected JSON
+    fs.readFile(path.join(__dirname, '_formdata', json.filename), 'utf8', function (err, data) {
+      if (err) throw err;
+      w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
+    });
+  }
+  catch(err){
+    console.log('file error')
+  }
+
 });
 
 ipcMain.on('form:post', (e, doc)=>{
@@ -273,25 +236,7 @@ ipcMain.on('form:post', (e, doc)=>{
       jsonData = { appId : appId, documents : [doc] };
     }
 
-    fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', ()=>{
-
-      require('dns').lookup('google.com',function(err) {
-        if(con = err && err.code == "ENOTFOUND"){
-          mongoose.connection.close()
-        }
-        else{
-          // mongoose: connect if not connected
-          mongoose.connection.readyState == 0 ?
-            mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-
-          // mongoose: if connected
-          if(mongoose.connection.readyState == 1){
-            mongoFormPost(doc, appId)
-          }
-        }
-      });
-
-    });
+    fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', ()=>{});
 
     w_main ? w_main.webContents.send('form:post') : 0
 
@@ -300,37 +245,37 @@ ipcMain.on('form:post', (e, doc)=>{
 });
 
 function mongoFormPost(doc, appId){
-  var documentId = doc._id; delete doc._id;
-
-  new AppData(appId)(doc).save(function(err,newDoc){
-    if (err) console.log(err);
-    let {_id} = newDoc;
-
-    fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
-      // filter: JSON files
-      files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
-
-      // update local file id
-      let jsonData = files.reduce((temp, file, i)=>{
-        let obj = fs.readFileSync(path.join(__dirname, '_appdata', file), {encoding: "utf8"});
-        if(obj){
-          if(JSON.parse(obj).appId == appId){
-            temp = JSON.parse(obj);
-            temp.documents.forEach( data => data._id == documentId ? data._id = _id : 0 )
-            temp['filename'] = file;
-          }
-        }
-        return temp;
-      },{})
-
-      let filename = jsonData.filename; delete jsonData.filename
-
-      // write local
-      fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', ()=>{});
-
-    });
-
-  })
+  // var documentId = doc._id; delete doc._id;
+  //
+  // new AppData(appId)(doc).save(function(err,newDoc){
+  //   if (err) console.log(err);
+  //   let {_id} = newDoc;
+  //
+  //   fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
+  //     // filter: JSON files
+  //     files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
+  //
+  //     // update local file id
+  //     let jsonData = files.reduce((temp, file, i)=>{
+  //       let obj = fs.readFileSync(path.join(__dirname, '_appdata', file), {encoding: "utf8"});
+  //       if(obj){
+  //         if(JSON.parse(obj).appId == appId){
+  //           temp = JSON.parse(obj);
+  //           temp.documents.forEach( data => data._id == documentId ? data._id = _id : 0 )
+  //           temp['filename'] = file;
+  //         }
+  //       }
+  //       return temp;
+  //     },{})
+  //
+  //     let filename = jsonData.filename; delete jsonData.filename
+  //
+  //     // write local
+  //     fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', ()=>{});
+  //
+  //   });
+  //
+  // })
 }
 
 // Menu ------------------------------------------------------------------------
