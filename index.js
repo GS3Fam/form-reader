@@ -89,7 +89,7 @@ function syncData(){
 
   })
 
-  console.log('synced')
+  // console.log('synced')
 }
 function sortCaptions(a,b) {
   if (a.caption < b.caption) return -1;
@@ -184,12 +184,16 @@ ipcMain.on('form:getInitial', (e)=>{
 
 ipcMain.on('form:getOne', (e, json)=>{
 
-  mongoose.connection.close()
   try {
     // get selected JSON
     fs.readFile(path.join(__dirname, '_formdata', json.filename), 'utf8', function (err, data) {
-      if (err) throw err;
-      w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
+      if (err) {
+        console.log(err);
+        w_main ? w_main.webContents.send('form:err') : 0
+      }
+      else{
+        w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
+      }
     });
   }
   catch(err){

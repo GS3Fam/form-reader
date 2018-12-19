@@ -75,6 +75,11 @@
           <p id='form-catch'>File directory is empty</p>`)
       });
 
+      ipcRenderer.on('form:err', (e)=>{
+        $(`form`).html(`
+          <p id='form-catch'>Oops! Something went wrong, please select another file</p>`)
+      });
+
       ipcRenderer.on('form:getOne', (e, json)=>{
         json ?
           json[0] ? json = json[0]._doc : 0
