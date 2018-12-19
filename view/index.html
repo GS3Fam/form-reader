@@ -75,7 +75,7 @@
           <p id='form-catch'>File directory is empty</p>`)
       });
 
-      ipcRenderer.on('form:err', (e)=>{
+      ipcRenderer.on('form:catch', (e)=>{
         $(`form`).html(`
           <p id='form-catch'>Oops! Something went wrong, please select another file</p>`)
       });

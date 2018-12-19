@@ -89,7 +89,6 @@ function syncData(){
 
   })
 
-  // console.log('synced')
 }
 function sortCaptions(a,b) {
   if (a.caption < b.caption) return -1;
@@ -133,9 +132,7 @@ ipcMain.on('form:getAll', (e)=>{
         mongoose.connection.readyState == 0 ?
           mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
         // mongoose: if connected
-        if(mongoose.connection.readyState == 1){
-          syncData();
-        }
+        mongoose.connection.readyState == 1 ? syncData() : 0
       }
 
     });
@@ -187,13 +184,9 @@ ipcMain.on('form:getOne', (e, json)=>{
   try {
     // get selected JSON
     fs.readFile(path.join(__dirname, '_formdata', json.filename), 'utf8', function (err, data) {
-      if (err) {
-        console.log(err);
-        w_main ? w_main.webContents.send('form:err') : 0
-      }
-      else{
-        w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
-      }
+      err ?
+        w_main ? w_main.webContents.send('form:catch') : 0
+        : w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
     });
   }
   catch(err){
