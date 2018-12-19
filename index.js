@@ -39,7 +39,57 @@ function fWindowMain(){
 // Events ----------------------------------------------------------------------
 
 function syncData(){
+  // Form Data : One Way
+  FormData.find().exec((err,m_formData)=>{
+    fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
+      // filter: JSON files
+      files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
 
+      console.log(m_formData.length)
+
+      // loop m_formData
+      let matchResults = m_formData.reduce((m_temp, mlab)=>{
+        mlab = mlab.toObject();
+        // loop local files
+        let match = files.reduce((loc_temp, local_name)=>{
+          try {
+            let loc_formData = fs.readFileSync(path.join(__dirname, '_formdata', local_name), {encoding: "utf8"});
+            if(loc_formData){
+              // match appId
+              let local = JSON.parse(loc_formData)
+              if(local.appId == mlab.appId){
+                loc_temp = 1
+                mlab._id = mlab._id.toString()
+
+                // compare json
+                if(!_.isEqual(mlab, local)){
+                  fs.writeFile(path.join(__dirname, '_formdata', local_name), JSON.stringify(mlab, null, 2), 'utf8', ()=>{});
+                }
+
+              }
+            }
+          }
+          catch(err){
+            console.log('file error')
+          }
+
+          return loc_temp
+        },0)
+
+        // match evaluation
+        match ? 0 : m_temp.push(mlab)
+        return m_temp
+
+      },[])
+
+      // write new forms to local
+      matchResults.forEach((data)=>{
+        fs.writeFile(path.join(__dirname, '_formdata', `${data.appId}.json`), JSON.stringify(data, null, 2), 'utf8', ()=>{});
+      })
+
+    });
+
+  })
 }
 
 ipcMain.on('form:getAll', (e)=>{
@@ -60,10 +110,15 @@ ipcMain.on('form:getAll', (e)=>{
         files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
         // get JSON properties
         let files_doc = files.reduce((temp, file, i)=>{
-          let data = fs.readFileSync(path.join(__dirname, '_formdata', file), {encoding: "utf8"});
-          if(JSON.parse(data)._app){
-            let { appId, caption } = JSON.parse(data)._app;
-            temp.push({ appId: appId, caption: caption, filename: file });
+          try{
+            let data = fs.readFileSync(path.join(__dirname, '_formdata', file), {encoding: "utf8"});
+            if(JSON.parse(data)._app){
+              let { appId, caption } = JSON.parse(data)._app;
+              temp.push({ appId: appId, caption: caption, filename: file });
+            }
+          }
+          catch(err){
+            console.log('file error')
           }
           return temp;
         },[])
@@ -153,10 +208,15 @@ ipcMain.on('form:getOne', (e, json)=>{
     if(con = err && err.code == "ENOTFOUND" && json.filename){
       mongoose.connection.close()
       // get selected JSON
-      fs.readFile(path.join(__dirname, '_formdata', json.filename), 'utf8', function (err, data) {
-        if (err) throw err;
-        w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
-      });
+      try {
+        fs.readFile(path.join(__dirname, '_formdata', json.filename), 'utf8', function (err, data) {
+          if (err) throw err;
+          w_main ? w_main.webContents.send('form:getOne', JSON.parse(data)) : 0
+        });
+      }
+      catch(err){
+        console.log('file error')
+      }
     }
     else{
       // mongoose: connect if not connected
