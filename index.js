@@ -45,9 +45,11 @@ function syncData(){
       // filter: JSON files
       files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
 
-      // loop m_formData
+      // loop mlab data
       let matchResults = m_formData.reduce((m_temp, mlab)=>{
         mlab = mlab.toObject();
+        mlab._id = mlab._id.toString();
+
         // loop local files
         let match = files.reduce((loc_temp, local_name)=>{
           try {
@@ -57,7 +59,6 @@ function syncData(){
               let local = JSON.parse(loc_formData)
               if(local.appId == mlab.appId){
                 loc_temp = 1
-                mlab._id = mlab._id.toString()
 
                 // compare json
                 if(!_.isEqual(mlab, local)){
@@ -87,9 +88,83 @@ function syncData(){
 
     });
 
+  });
+
+  mongoose.connection.db.listCollections().toArray(function (err, collectionNames) {
+    collections = collectionNames.reduce((temp, data)=>{
+      data.name.length >= 24 ? temp.push(data.name) : 0 ;
+      return temp;
+    },[])
+
+    syncAppData(collections)
+  });
+}
+
+function syncAppData(collections){
+  var local_files;
+
+  fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
+    // filter: JSON files
+    files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
+
+    local_files = files.reduce((temp, file)=>{
+      try{
+        let obj = JSON.parse(fs.readFileSync(path.join(__dirname, '_appdata', file), {encoding: "utf8"}))
+        temp.push( { local: obj, filename: file } );
+      }
+      catch(err){}
+      return temp
+    },[])
+
+  });
+
+  collections.forEach((coll)=>{
+    AppData(coll).find().exec((err, mlab_docs)=>{
+
+      let matchResults = mlab_docs.reduce((m_temp, mlab)=>{
+        mlab = mlab.toObject();
+        mlab._id = mlab._id.toString();
+
+        let match = local_files.reduce((loc_temp, local_file)=>{
+          let {local, filename} = local_file
+
+          if(coll == local.appId){
+            loc_temp = 1;
+
+            local.documents.forEach((loc_doc, i)=>{
+              if(mlab._id == loc_doc._id){
+                // console.log(`same _id ${mlab._id}`)
+
+                if(!_.isEqual(mlab, loc_doc)){
+                  if(mlab._updated > loc_doc._updated){
+                    console.log('local.ly')
+                    local.documents.splice(i, 1, mlab)
+
+                    fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', ()=>{});
+                  }
+                  else if(mlab._updated < loc_doc._updated){
+                    console.log('push me to the edge (jk, just to mlab)')
+
+                  }
+                }
+
+              }
+            })
+          }
+
+        },0)
+
+        // match evaluation
+        match ? 0 : m_temp.push(mlab)
+        return m_temp
+
+      },[])
+
+    })
   })
 
 }
+
 function sortCaptions(a,b) {
   if (a.caption < b.caption) return -1;
   if (a.caption > b.caption) return 1;
@@ -128,11 +203,14 @@ ipcMain.on('form:getAll', (e)=>{
       }
       else{
         w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: true}) : 0
-        // mongoose: connect if not connected
-        mongoose.connection.readyState == 0 ?
-          mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-        // mongoose: if connected
-        mongoose.connection.readyState == 1 ? syncData() : 0
+
+        const con = async () => {
+          mongoose.connection.readyState != 1 ?
+            await mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
+          syncData()
+        }
+        con()
+
       }
 
     });
