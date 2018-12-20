@@ -90,14 +90,21 @@ function syncData(){
 
   });
 
-  mongoose.connection.db.listCollections().toArray(function (err, collectionNames) {
-    collections = collectionNames.reduce((temp, data)=>{
-      data.name.length >= 24 ? temp.push(data.name) : 0 ;
-      return temp;
-    },[])
+  // App Data : Two Way
+  try{
+    mongoose.connection.db.listCollections().toArray(function (err, collectionNames) {
+      collections = collectionNames.reduce((temp, data)=>{
+        data.name.length >= 24 ? temp.push(data.name) : 0 ;
+        return temp;
+      },[])
 
-    syncAppData(collections)
-  });
+      syncAppData(collections)
+    });
+  }
+  catch{
+    console.log('unable to sync AppData')
+  }
+
 }
 
 function syncAppData(collections){
@@ -120,45 +127,54 @@ function syncAppData(collections){
 
   collections.forEach((coll)=>{
     AppData(coll).find().exec((err, mlab_docs)=>{
+      if (mlab_docs){
+        let fileMatch = local_files.reduce((temp, data)=>{
+          coll == data.local.appId ? temp.push(data) : 0
+          return temp
+        },[]);
 
-      let matchResults = mlab_docs.reduce((m_temp, mlab)=>{
-        mlab = mlab.toObject();
-        mlab._id = mlab._id.toString();
+        if(fileMatch[0]){
+          let {local, filename} = fileMatch[0]
 
-        let match = local_files.reduce((loc_temp, local_file)=>{
-          let {local, filename} = local_file
+          let matchResults = mlab_docs.reduce((m_temp, mlab)=>{
+            mlab = mlab.toObject();
+            mlab._id = mlab._id.toString();
 
-          if(coll == local.appId){
-            loc_temp = 1;
-
-            local.documents.forEach((loc_doc, i)=>{
+            let match = local.documents.reduce((loc_temp, loc_doc, i)=>{
               if(mlab._id == loc_doc._id){
-                // console.log(`same _id ${mlab._id}`)
+                loc_temp = 1;
 
                 if(!_.isEqual(mlab, loc_doc)){
-                  if(mlab._updated > loc_doc._updated){
-                    console.log('local.ly')
+                  if(mlab._updated > loc_doc._updated || mlab._updated.getTime() == loc_doc._updated.getTime()){
                     local.documents.splice(i, 1, mlab)
-
                     fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', ()=>{});
                   }
                   else if(mlab._updated < loc_doc._updated){
                     console.log('push me to the edge (jk, just to mlab)')
-
                   }
                 }
-
               }
-            })
-          }
+              return loc_temp
+            },0)
 
-        },0)
+            // match evaluation
+            match ? 0 : m_temp.push(mlab)
+            return m_temp
 
-        // match evaluation
-        match ? 0 : m_temp.push(mlab)
-        return m_temp
+          },[])
 
-      },[])
+          matchResults.forEach((data)=>{
+            local.documents.push(data)
+            fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', ()=>{});
+          })
+
+        }
+        else{
+          let newFile = { appId: coll, documents: mlab_docs }
+          fs.writeFile(path.join(__dirname, '_appdata', `${coll}.json`), JSON.stringify(newFile, null, 2), 'utf8', ()=>{});
+        }
+
+      }
 
     })
   })
@@ -207,7 +223,8 @@ ipcMain.on('form:getAll', (e)=>{
         const con = async () => {
           mongoose.connection.readyState != 1 ?
             await mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
-          syncData()
+          mongoose.connection.readyState == 1 ?
+            syncData() : console.log('unable to connect')
         }
         con()
 
