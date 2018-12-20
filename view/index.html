@@ -41,7 +41,7 @@
         ipcRenderer.send('form:getAll')
       }
       getFiles()
-      setInterval(getFiles, 3000);
+      setInterval(getFiles, 10000);
 
       // Request Get Initial
       ipcRenderer.send('form:getInitial')
