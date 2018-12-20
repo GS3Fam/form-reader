@@ -41,52 +41,54 @@ function fWindowMain(){
 function syncData(){
   // Form Data : One Way
   FormData.find().exec((err,m_formData)=>{
-    fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
-      // filter: JSON files
-      files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
+    if(m_formData){
+      fs.readdir(path.join(__dirname, '_formdata'), (err, files) => {
+        // filter: JSON files
+        files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
 
-      // loop mlab data
-      let matchResults = m_formData.reduce((m_temp, mlab)=>{
-        mlab = mlab.toObject();
-        mlab._id = mlab._id.toString();
+        // loop mlab data
+        let matchResults = m_formData.reduce((m_temp, mlab)=>{
+          mlab = mlab.toObject();
+          mlab._id = mlab._id.toString();
 
-        // loop local files
-        let match = files.reduce((loc_temp, local_name)=>{
-          try {
-            let loc_formData = fs.readFileSync(path.join(__dirname, '_formdata', local_name), {encoding: "utf8"});
-            if(loc_formData){
-              // match appId
-              let local = JSON.parse(loc_formData)
-              if(local.appId == mlab.appId){
-                loc_temp = 1
+          // loop local files
+          let match = files.reduce((loc_temp, local_name)=>{
+            try {
+              let loc_formData = fs.readFileSync(path.join(__dirname, '_formdata', local_name), {encoding: "utf8"});
+              if(loc_formData){
+                // match appId
+                let local = JSON.parse(loc_formData)
+                if(local.appId == mlab.appId){
+                  loc_temp = 1
 
-                // compare json
-                if(!_.isEqual(mlab, local)){
-                  fs.writeFile(path.join(__dirname, '_formdata', local_name), JSON.stringify(mlab, null, 2), 'utf8', ()=>{});
+                  // compare json
+                  if(!_.isEqual(mlab, local)){
+                    fs.writeFile(path.join(__dirname, '_formdata', local_name), JSON.stringify(mlab, null, 2), 'utf8', ()=>{});
+                  }
+
                 }
-
               }
             }
-          }
-          catch(err){
-            console.log('file error')
-          }
+            catch(err){
+              console.log('file error')
+            }
 
-          return loc_temp
-        },0)
+            return loc_temp
+          },0)
 
-        // match evaluation
-        match ? 0 : m_temp.push(mlab)
-        return m_temp
+          // match evaluation
+          match ? 0 : m_temp.push(mlab)
+          return m_temp
 
-      },[])
+        },[])
 
-      // write new forms to local
-      matchResults.forEach((data)=>{
-        fs.writeFile(path.join(__dirname, '_formdata', `${data.appId}.json`), JSON.stringify(data, null, 2), 'utf8', ()=>{});
-      })
+        // write new forms to local
+        matchResults.forEach((data)=>{
+          fs.writeFile(path.join(__dirname, '_formdata', `${data.appId}.json`), JSON.stringify(data, null, 2), 'utf8', ()=>{});
+        })
 
-    });
+      });
+    }
 
   });
 
@@ -110,6 +112,7 @@ function syncData(){
 function syncAppData(collections){
   var local_files;
 
+  // read all local files
   fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
     // filter: JSON files
     files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
@@ -125,31 +128,39 @@ function syncAppData(collections){
 
   });
 
+  // loop mlab collections
   collections.forEach((coll)=>{
     AppData(coll).find().exec((err, mlab_docs)=>{
       if (mlab_docs){
+        // if a local file's appId matches mlab document's appId
         let fileMatch = local_files.reduce((temp, data)=>{
           coll == data.local.appId ? temp.push(data) : 0
           return temp
         },[]);
 
+        // when a file matches: compare documents
         if(fileMatch[0]){
           let {local, filename} = fileMatch[0]
 
+          // loop mlab documents
           let matchResults = mlab_docs.reduce((m_temp, mlab)=>{
             mlab = mlab.toObject();
             mlab._id = mlab._id.toString();
 
+            // loop local documents
             let match = local.documents.reduce((loc_temp, loc_doc, i)=>{
               if(mlab._id == loc_doc._id){
                 loc_temp = 1;
 
+                // compare documents
                 if(!_.isEqual(mlab, loc_doc)){
                   if(mlab._updated > loc_doc._updated || mlab._updated.getTime() == loc_doc._updated.getTime()){
+                    // update local document
                     local.documents.splice(i, 1, mlab)
                     fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', ()=>{});
                   }
                   else if(mlab._updated < loc_doc._updated){
+                    // update mlab document
                     console.log('push me to the edge (jk, just to mlab)')
                   }
                 }
@@ -163,6 +174,7 @@ function syncAppData(collections){
 
           },[])
 
+          // add new local records
           matchResults.forEach((data)=>{
             local.documents.push(data)
             fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', ()=>{});
