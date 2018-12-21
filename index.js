@@ -159,8 +159,6 @@ function syncAppData(collections){
           return temp
         },[])
 
-        // console.log(mlab_docs)
-
         // when a file matches: compare documents
         if(fileMatch[0]){
           console.log('start')
@@ -188,7 +186,11 @@ function syncAppData(collections){
                   }
                   else if(mlab._updated < loc_doc._updated){
                     // update mlab document
-                    console.log('push me to the edge (jk, just to mlab)')
+                    console.log('mlab sync')
+                    mongoose.set('useFindAndModify', false);
+                    AppData(coll).findOneAndUpdate({_id: loc_doc._id}, loc_doc, {upsert:true}, function(err, doc){
+                      console.log('saved : update mlab doc')
+                    });
                   }
                 }
               }
@@ -209,7 +211,6 @@ function syncAppData(collections){
             fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', (err)=>{
               console.log('saved : add matchResults to local')
             }) : 0
-
 
           // add new mlab documents
           let newDocs = local.documents.reduce((temp, data)=>{
