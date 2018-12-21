@@ -38,7 +38,7 @@ function fWindowMain(){
 
 // Events ----------------------------------------------------------------------
 
-var global = {
+let global = {
   _appdata: {
     syncing: 0
   }
@@ -245,7 +245,7 @@ function syncAppData(collections){
                   })
 
                   ++i;
-                  if(i == length){
+                  if(i >= length){
                     fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', (err)=>{
                       console.log('saved : update newDocs Ids')
                       global._appdata.syncing != 0 ? --global._appdata.syncing : 0
