@@ -38,6 +38,12 @@ function fWindowMain(){
 
 // Events ----------------------------------------------------------------------
 
+var global = {
+  _appdata: {
+    syncing: 0
+  }
+}
+
 function syncData(){
   // Form Data : One Way
   FormData.find().exec((err,m_formData)=>{
@@ -93,24 +99,30 @@ function syncData(){
   });
 
   // App Data : Two Way
-  try{
-    mongoose.connection.db.listCollections().toArray(function (err, collectionNames) {
-      collections = collectionNames.reduce((temp, data)=>{
-        data.name.length >= 24 ? temp.push(data.name) : 0 ;
-        return temp;
-      },[])
+  if (global._appdata.syncing == 0){
+    try{
+      mongoose.connection.db.listCollections().toArray(function (err, collectionNames) {
+        collections = collectionNames.reduce((temp, data)=>{
+          data.name.length >= 24 ? temp.push(data.name) : 0 ;
+          return temp;
+        },[])
 
-      syncAppData(collections)
-    });
+        syncAppData(collections)
+      });
+    }
+    catch{
+      console.log('unable to sync AppData')
+    }
   }
-  catch{
-    console.log('unable to sync AppData')
+  else{
+    console.log('Appdata is currently syncing')
   }
 
 }
 
 function syncAppData(collections){
   var local_files;
+  global._appdata.syncing = 1;
 
   // read all local files
   fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
@@ -129,7 +141,8 @@ function syncAppData(collections){
   });
 
   // loop mlab collections
-  collections.forEach((coll)=>{
+  global._appdata.syncing += collections.length-1
+  collections.forEach((coll, coll_i)=>{
     AppData(coll).find().exec((err, mlab_docs)=>{
       if (mlab_docs){
         // if a local file's appId matches mlab document's appId
@@ -138,6 +151,16 @@ function syncAppData(collections){
           return temp
         },[]);
 
+        // remove __v from mlab docs
+        mlab_docs = mlab_docs.reduce((temp, data)=>{
+          data = data.toObject();
+          delete data.__v
+          temp.push(data)
+          return temp
+        },[])
+
+        // console.log(mlab_docs)
+
         // when a file matches: compare documents
         if(fileMatch[0]){
           console.log('start')
@@ -145,7 +168,7 @@ function syncAppData(collections){
 
           // loop mlab documents
           let matchResults = mlab_docs.reduce((m_temp, mlab)=>{
-            mlab = mlab.toObject();
+            // mlab = mlab.toObject();
             mlab._id = mlab._id.toString();
 
             // loop local documents
@@ -155,12 +178,12 @@ function syncAppData(collections){
 
                 // compare documents
                 if(!_.isEqual(mlab, loc_doc)){
-                  if((mlab._updated > loc_doc._updated || mlab._updated == loc_doc._updated) && !mlab.hasOwnProperty('_dontSync')){
+                  if(mlab._updated > loc_doc._updated || mlab._updated == loc_doc._updated){
                     // update local document
                     console.log('local sync')
                     local.documents.splice(i, 1, mlab)
                     fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', (err)=>{
-                      console.log('saved : local')
+                      console.log('saved : update local doc')
                     });
                   }
                   else if(mlab._updated < loc_doc._updated){
@@ -180,18 +203,18 @@ function syncAppData(collections){
 
           // add new local documents
           matchResults.forEach((data)=>{
-            data.hasOwnProperty('_dontSync') ? 0 : local.documents.push(data);
+            local.documents.push(data);
           })
-          fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', (err)=>{
-            console.log('saved : 1')
-          });
+          matchResults[0] ?
+            fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', (err)=>{
+              console.log('saved : add matchResults to local')
+            }) : 0
 
 
           // add new mlab documents
           let newDocs = local.documents.reduce((temp, data)=>{
             if(data._newLocal){
               temp.push(data);
-              data._dontSync = 1;
               delete data._newLocal;
             }
             return temp;
@@ -200,9 +223,9 @@ function syncAppData(collections){
           if(newDocs[0]){
             new Promise(function(resolve, reject){
               fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', (err)=>{
-                console.log('saved : 2')
+                console.log('saved : remove newDocs _newLocal')
+                resolve(1)
               })
-              resolve(1)
             })
             .then((val)=>{
               let {length} = newDocs
@@ -218,50 +241,51 @@ function syncAppData(collections){
                   local.documents.forEach((data, index)=>{
                     if(data._id == local_id){
                       data._id = _id
-                      delete data._dontSync
                     }
                   })
 
                   ++i;
                   if(i == length){
                     fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', (err)=>{
-                      console.log('saved : 3')
+                      console.log('saved : update newDocs Ids')
+                      --global._appdata.syncing
+                      console.log('minus : update newDocs Ids')
+                      global._appdata.syncing == 0 ?
+                        console.log(`global sync is empty`) : 0
+                      // coll_i == collections.length-1 ? global._appdata.syncing = 0 : 0
                     })
                   }
-                  else{
-                    saveDocs(i)
-                  }
-
+                  else saveDocs(i)
                 })
               }
-
               saveDocs(0)
-
-              // return(1)
             })
-            // .then((val)=>{
-            //   fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', ()=>{})
-            // })
           }
-
-          if(newDocs[0]){
-
+          else{
+            --global._appdata.syncing
+            console.log('minus : no newDocs')
+            global._appdata.syncing == 0 ?
+              console.log(`global sync is empty`) : 0
           }
-
-
-
 
         }
         else{
           // add new local file/collection
           let newFile = { appId: coll, documents: mlab_docs }
-          fs.writeFile(path.join(__dirname, '_appdata', `${coll}.json`), JSON.stringify(newFile, null, 2), 'utf8', ()=>{});
+          fs.writeFile(path.join(__dirname, '_appdata', `${coll}.json`), JSON.stringify(newFile, null, 2), 'utf8', (err)=>{
+            --global._appdata.syncing
+            console.log('minus : no fileMatch')
+            global._appdata.syncing == 0 ?
+              console.log(`global sync is empty`) : 0
+          });
         }
 
       }
 
     })
   })
+
+  // console.log('---------------------------------------------')
 
   // add new mlab collections
 
