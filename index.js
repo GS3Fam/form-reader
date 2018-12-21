@@ -122,7 +122,7 @@ function syncData(){
 
 function syncAppData(collections){
   var local_files;
-  global._appdata.syncing = 1;
+  global._appdata.syncing = collections.length
 
   // read all local files
   fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
@@ -141,7 +141,6 @@ function syncAppData(collections){
   });
 
   // loop mlab collections
-  global._appdata.syncing += collections.length-1
   collections.forEach((coll, coll_i)=>{
     AppData(coll).find().exec((err, mlab_docs)=>{
       if (mlab_docs){
@@ -249,11 +248,10 @@ function syncAppData(collections){
                   if(i == length){
                     fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(local, null, 2), 'utf8', (err)=>{
                       console.log('saved : update newDocs Ids')
-                      --global._appdata.syncing
+                      global._appdata.syncing != 0 ? --global._appdata.syncing : 0
                       console.log('minus : update newDocs Ids')
                       global._appdata.syncing == 0 ?
                         console.log(`global sync is empty`) : 0
-                      // coll_i == collections.length-1 ? global._appdata.syncing = 0 : 0
                     })
                   }
                   else saveDocs(i)
@@ -263,7 +261,7 @@ function syncAppData(collections){
             })
           }
           else{
-            --global._appdata.syncing
+            global._appdata.syncing != 0 ? --global._appdata.syncing : 0
             console.log('minus : no newDocs')
             global._appdata.syncing == 0 ?
               console.log(`global sync is empty`) : 0
@@ -274,7 +272,7 @@ function syncAppData(collections){
           // add new local file/collection
           let newFile = { appId: coll, documents: mlab_docs }
           fs.writeFile(path.join(__dirname, '_appdata', `${coll}.json`), JSON.stringify(newFile, null, 2), 'utf8', (err)=>{
-            --global._appdata.syncing
+            global._appdata.syncing != 0 ? --global._appdata.syncing : 0
             console.log('minus : no fileMatch')
             global._appdata.syncing == 0 ?
               console.log(`global sync is empty`) : 0
