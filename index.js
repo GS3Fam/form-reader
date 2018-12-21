@@ -285,8 +285,6 @@ function syncAppData(collections){
     })
   })
 
-  // console.log('---------------------------------------------')
-
   // add new mlab collections
 
 }
@@ -325,6 +323,7 @@ ipcMain.on('form:getAll', (e)=>{
     require('dns').lookup('google.com',function(err) {
       if(con = err && err.code == "ENOTFOUND"){
         mongoose.connection.close()
+        global._appdata.syncing = 0;
         w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: false}) : 0
       }
       else{
@@ -332,7 +331,9 @@ ipcMain.on('form:getAll', (e)=>{
 
         const con = async () => {
           mongoose.connection.readyState != 1 ?
-            await mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
+            await mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}, (err)=>{
+              global._appdata.syncing = 0;
+            }) : 0
           mongoose.connection.readyState == 1 ?
             syncData() : console.log('unable to connect : 2')
         }
