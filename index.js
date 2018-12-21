@@ -320,6 +320,7 @@ ipcMain.on('form:getAll', (e)=>{
     // sort files by caption
     files_doc.sort(sortCaptions);
 
+    // check connection
     require('dns').lookup('google.com',function(err) {
       if(con = err && err.code == "ENOTFOUND"){
         mongoose.connection.close()
@@ -329,25 +330,24 @@ ipcMain.on('form:getAll', (e)=>{
       else{
         w_main ? w_main.webContents.send('form:getAll', {files: files_doc, con: true}) : 0
 
+        // check mongoose connection
         const con = async () => {
           mongoose.connection.readyState != 1 ?
-            await mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}, (err)=>{
-              global._appdata.syncing = 0;
-            }) : 0
-          mongoose.connection.readyState == 1 ?
-            syncData() : console.log('unable to connect : 2')
+            await mongoose.connect("mongodb://admin:pass0424@ds131784.mlab.com:31784/form-reader", {useNewUrlParser: true}) : 0
+          if(mongoose.connection.readyState == 1) syncData()
+          else{
+            console.log('unable to connect : 2')
+            global._appdata.syncing = 0;
+          }
         }
 
         con().catch(err => {
           console.log('unable to connect : 1')
+          global._appdata.syncing = 0;
         });
-
       }
-
     });
-
   })
-
 });
 
 ipcMain.on('form:getInitial', (e)=>{
@@ -450,40 +450,6 @@ ipcMain.on('form:post', (e, doc)=>{
   })
 
 });
-
-function mongoFormPost(doc, appId){
-  // var documentId = doc._id; delete doc._id;
-  //
-  // new AppData(appId)(doc).save(function(err,newDoc){
-  //   if (err) console.log(err);
-  //   let {_id} = newDoc;
-  //
-  //   fs.readdir(path.join(__dirname, '_appdata'), (err, files) => {
-  //     // filter: JSON files
-  //     files = files.filter( file => file.split('.')[file.split('.').length-1] == 'json' )
-  //
-  //     // update local file id
-  //     let jsonData = files.reduce((temp, file, i)=>{
-  //       let obj = fs.readFileSync(path.join(__dirname, '_appdata', file), {encoding: "utf8"});
-  //       if(obj){
-  //         if(JSON.parse(obj).appId == appId){
-  //           temp = JSON.parse(obj);
-  //           temp.documents.forEach( data => data._id == documentId ? data._id = _id : 0 )
-  //           temp['filename'] = file;
-  //         }
-  //       }
-  //       return temp;
-  //     },{})
-  //
-  //     let filename = jsonData.filename; delete jsonData.filename
-  //
-  //     // write local
-  //     fs.writeFile(path.join(__dirname, '_appdata', filename), JSON.stringify(jsonData, null, 2), 'utf8', ()=>{});
-  //
-  //   });
-  //
-  // })
-}
 
 // Menu ------------------------------------------------------------------------
 
